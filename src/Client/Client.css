@@ -1,0 +1,195 @@
+.header {
+    background: white;
+    height:30px;
+    width:100px;
+}
+    
+.header h3 {
+  position: relative;
+  top: 18px;
+  left: 10px;
+}
+ .header img {
+ float: left;
+ width: 55px;
+ height: 30px;
+ background: white;
+ } 
+
+.cont
+{
+ border-bottom: gray;
+ border-block-end: gray;
+
+}
+
+@media (min-width: 768px) {
+.my-custom-container{
+    width:750px;
+}}
+
+  .form1
+   {
+       margin: 0;
+       padding: 12px 0;
+       text-align: left;
+       background-color: lightseagreen;
+       color: white;
+   }
+
+   .mybutton{
+        margin: 0;
+       text-align: left;
+       background-color: lightseagreen;
+       color: white;
+   }
+
+  .button
+   {
+     vertical-align:text-bottom;
+    display:inline-block;
+    border-width:0px 0px 0px 1px;
+    margin:0;
+    height:55px
+   }
+
+  .panel-heading
+  {
+    padding:10px 15px;
+    border-bottom:1px solid transparent;
+    border-top-left-radius:3px;
+    border-top-right-radius:3px;
+    text-align: left;
+    height: 32px;
+  }  
+
+.panel-default
+{ 
+    border-color:#ddd
+}
+
+.panel-body
+{
+    padding: 10px 15px;
+    background-color: #f5f5f5;
+    border-bottom:1px solid #ddd;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    text-align: left;
+}
+
+.collapsible {
+  display: block;
+  padding: 0 1em;
+  width: 100%;
+  background: hsl(0, 1%, 90%);
+}
+
+  .formSearch
+  {
+      padding:10px 0;
+      box-sizing: border-box; 
+    background-color: lightgray;
+    margin-bottom: 10px;
+        height: 89px;
+ }
+
+ .react-datepicker-wrapper,.react-datepicker__input-container{
+     width: 100%;
+ }
+ 
+.headercon{
+    margin-top:50px; 
+    
+}
+.headerbtn
+{
+    margin: 8px 0;
+    border-color: lightseagreen;
+}
+ ul > li > a:hover{
+    background-color:lightblue;
+}
+ .my-nav-bar{
+  background: #fff!important;
+  position: absolute;
+  top:0;
+    box-shadow: 0 -1px 5px #000;
+    z-index: 2;
+    font-size: 17px;
+    width: 100%;
+}
+  
+
+.myclient-button-block{
+    margin-top:24px; 
+}
+
+.mleft10{
+    margin-left: 5px;
+}
+
+
+.panel-heading{
+    background:  transparent!important;
+    background-color: transparent!important;
+}
+.panel{
+    border: 0!important;
+    box-shadow: none!important;
+    /* border:1pt solid #eee;  */
+    border-radius: 0!important;
+    margin: 0!important;
+}
+
+.panel-body{
+    border-radius:0;
+    border-color:transparent!important;  
+}
+
+.myRow td{
+    padding: 0!important;
+}
+
+.dropdown-menu > li > a:hover {
+    background-color: lightblue;
+    background-image: none;
+}
+
+.dropdown > a:hover{
+    background-color:lightblue;
+    background-image: none;
+}
+
+.numalign
+{
+    text-align: right;
+    border-block-end-width:60px;
+}
+
+.exp-jobs
+{
+    text-align: right;
+    color: red;
+}
+
+  .invoice > :hover{
+      text-align: center;
+     cursor: hand;
+}
+
+.table-row-selected { 
+    cursor: hand;
+}
+
+.headerimage{
+    padding-top: 5px;
+    width: 62px;
+    height: 42px;
+}
+
+
+.react-bs-table-tool-bar {
+    margin-bottom: 5px;
+    padding-left: 1220px;
+}

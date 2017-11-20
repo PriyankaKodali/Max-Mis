@@ -1,0 +1,26 @@
+ .paybutton
+ {
+    padding-top:33px;
+    text-align:center;
+ }
+
+ .clienttable
+ {
+     /* border-top: 1px solid black; */
+     padding-top: 10px;
+ }
+
+ 
+.mytext{
+       resize:vertical;
+}
+
+.balamount{
+ padding-left:2px;
+}
+
+
+.balance{
+        text-align: left;
+    padding-left: 12px;
+}

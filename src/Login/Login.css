@@ -1,0 +1,18 @@
+#logingrid{
+    border: 1pt solid gray;
+    margin: 0 34%;
+    margin-top: 10%
+}
+
+.logo
+{
+    width: 265px;
+    height: 72px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 145px;
+}
+
+.submitButton{
+      padding-left: 165px;
+}

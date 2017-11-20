@@ -1,0 +1,225 @@
+
+.headerTable {
+    width: 100%;
+}
+
+td{
+    padding:5px 10px;
+}
+
+#grid{
+    border: 1pt solid gray;
+    margin: 0 20%;
+    margin-top: 5%
+}
+
+.headerTable td {
+  font-size : 14px;
+  text-align: right;
+  padding: 15px;
+}
+
+.headerTable p {
+    font-size: 14px;
+}
+
+.clientTable {
+    width: 175%;
+    border: 1px solid black;
+}
+
+.clientTable td {
+  font-size : 14px;
+  padding: 10px;
+  border: 1px solid black;
+}
+
+.clientTable th {
+  font-size : 14px;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid black;
+}
+
+.summaryTable {
+    width: 100%;
+    float: right;
+    border: 1px solid #000;
+    border-top: none;
+}
+
+.summaryTable td {
+  font-size : 14px;
+  padding: 10px;
+  border: 1px solid black;
+  border-top: none;
+}
+
+.footerTable {
+  width: 156%;
+}
+
+.footerTable td {
+  font-size : 14px;
+  padding: 10px;
+}
+
+.myImage{
+    width:120px;
+    height:70px;
+}
+
+.myheader{
+  padding-left: 120px;
+}
+
+.myinvoicedate{
+    text-align: right;
+}
+
+/* .mytable{
+   width: 93%;
+   padding-left: 475px;
+    width: 275px;
+} */
+
+.table,thead,tbody,tr,td{
+    font-size: 14px;
+}
+
+
+.unpaidamount{
+text-align: right;
+}
+.p {
+    font-family: "Times New Roman", Times, serif;
+    font-style: normal;
+    font-size: 14px;
+}
+
+ /* .table,thead,tbody,tr,td{
+     border: 1px solid black;
+    border-collapse: collapse;
+    
+} */
+
+
+.mytable {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 0px;
+   border-right: 1pt solid black!important;
+}
+
+   .mytable:first-child{
+    border-collapse: collapse;
+     border-top: 1pt solid black!important;  
+ }  
+
+.mytable tr td,.mytable tr th {
+      border: none!important;  
+     border-bottom: 1pt solid black!important; 
+     border-left: 1pt solid black!important; 
+    border-collapse: collapse!important;
+ }
+.mytable tbody tr:last-child td{
+     border-bottom: 1pt solid black!important;
+     } 
+ .mytable tbody tr:first-child td{
+     border-top: 0pt solid black!important; 
+
+}  
+
+.cell-align{
+    text-align: right;
+}
+.numalign{
+    text-align: center;;
+}
+
+.myapproval
+{
+    padding-left: 0px;
+
+}
+
+.mynum{
+    padding:6px 20px;
+}
+
+.mytables
+{    
+     width: 250px;
+    float: left;
+    border-top: none;
+}
+
+.summary{
+       padding-left: 450px;
+}
+
+.tabcolumn{
+       column-width: 120px;
+}
+.amount{
+     column-width: 100px;
+}
+
+.mycolumns
+{
+        column-span: 4;
+        text-align: right;
+      }
+.invoiceheader
+{
+    padding-top: 10px;
+}
+
+.firstLabel {
+     width:180px;
+    clear:left;
+    text-align:right;
+    padding-right:10px;
+}
+
+/* .sum{
+    padding-top: 0px;
+ /* padding-left: 448px; */
+    /* padding-left: 448px; 
+    width: 50%;
+    border-top: none;
+} */ */
+
+   .sum
+   {
+    padding-top: 0px;
+    padding-left: 366px;
+    width: 56%;
+    border-top: none;
+   }
+  
+
+.mysummaryColumns{
+    column-width: 150px;
+}
+
+.mybal{
+    text-align: right;
+    padding-right: 13px;
+}
+
+.clientsummary
+{ 
+    width: 37.5%;
+    float: right;
+    border: 1px solid #000;
+    border-top: none;
+}
+
+
+.clientsummary td {
+  font-size : 14px;
+  padding: 10px;
+  border: 1px solid black;
+  border-top: none;
+}
