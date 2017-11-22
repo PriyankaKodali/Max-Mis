@@ -2,22 +2,19 @@ import { validate } from 'validate.js'
 import $ from 'jquery';
 
 var constraints = {
-    paymentAmount: {
-        presence: true
-        // format: {
-        //     pattern: "/^([0-9]){1,2}(\.){1}([0-9]){2}$/",
-        //     message: " is not valid"
-        // }
-    },
-    Currency: {
-        presence: true
-    },
     Description: {
         presence: true,
          length: { minimum: 5 }
     },
     paymentDate: {
         presence: true
+    },
+    paymentAmount:{
+        presence:true
+        // fromat:{
+        //     pattern:"/^[-+]?[0-9]+\.[0-9]+$/",
+        //     message:"is not valid"
+        // }
     }
 }
 

@@ -209,18 +209,27 @@ class Client extends Component {
     }
 
     invoiceFormatter(cell, row) {
-
-        if (row["InvoiceGenerated"]) {
+     //   console.log(row["GeneratedBy"]);
+        if (row["ApprovedBy"]) {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="View Invoice" data-original-title="View Invoive">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='View Pdf' style={{ cursor: 'pointer', fontSize: '17px', color: 'green' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["InvoiceGenerated"], row["AmountPerUnit"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='View Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'green' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
                 </a>
             )
         }
+
+        else if (row["GeneratedBy"]) {
+            return (
+                <a data-toggle="tooltip" className="tooltipLink" title="Approve Invoice" data-original-title="Approve Invoice">
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='Approve Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'orange' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
+                </a>
+            )
+        }
+
         else {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="Generate Invoice" data-original-title="Generate Invoive">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["InvoiceGenerated"], row["AmountPerUnit"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
                 </a>
             )
         }
@@ -237,7 +246,7 @@ class Client extends Component {
         });
     }
 
-    gotoClientInvoice(ClientId, fromDate, toDate, EmptyJobs, InvoiceGenerated, AmountPerUnit) {
+    gotoClientInvoice(ClientId, fromDate, toDate, EmptyJobs, InvoiceGenerated, AmountPerUnit, ApprovedBy) {
 
         var fromDate = this.state.fromDate.format("MM-DD-YYYY");
         var toDate = this.state.toDate.format("MM-DD-YYYY");
@@ -246,6 +255,7 @@ class Client extends Component {
 
             alert("Could not generate invoice as pendings jobs are present");
         }
+
         else {
             if (AmountPerUnit == 0) {
                 alert("Counldn't generate invoice as there is no unit price for this client!");
@@ -255,12 +265,13 @@ class Client extends Component {
                 if (InvoiceGenerated) {
                     var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
                         "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
+
                     $.ajax({
                         url,
                         type: "get",
                         success: (data) => {
                             this.setState({ InvoiceCount: data["InvoiceCount"] })
-                            var invoiceId = "MAX-" + ClientId + moment(fromDate).format("MM") + moment(fromDate).format("YY") + "_" + (this.state.InvoiceCount + 1)
+                            var invoiceId = "MAX-" + ClientId + moment(fromDate).format("MM") + moment(fromDate).format("YY") + "_" + (this.state.InvoiceCount )
                             this.props.history.push({
                                 state: {
                                     ClientId: ClientId,
@@ -268,13 +279,14 @@ class Client extends Component {
                                     toDate: toDate,
                                     invoiceId: invoiceId
                                 },
-                                  pathname: "/ViewOrCancelInvoice"
+                                pathname: "/ViewOrCancelInvoice"
                             })
                         }
                     })
                 }
+
                 else {
-                    var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
+                    var url = ApiUrl + "/api/Clients/GetClientInvoiceCount?ClientId=" + ClientId +
                         "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
 
                     $.ajax({
@@ -296,8 +308,10 @@ class Client extends Component {
                         }
                     });
                 }
+
             }
         }
+
     }
 
     ClientChanged(val) {
@@ -326,10 +340,3 @@ class Client extends Component {
 }
 
 export default Client;
-
-
-
-
-
-
-// onClick={() => { this.setState({ searchClick: !this.state.searchClick }) }}

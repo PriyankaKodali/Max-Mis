@@ -41,41 +41,70 @@ class ViewOrCancelInvoice extends Component {
     }
 
     componentWillMount() {
-        this.setState({ Client_Id: this.props.match.params["ClientId"], invoiceId: this.props.match.params["invoiceId"] }, () => {
+        this.setState({
+            Client_Id: this.props.match.params["ClientId"], invoiceId: this.props.match.params["invoiceId"],
+            fromDate: this.props.match.params[" fromDate"], toDate: this.props.match.params["toDate"]
+        }, () => {
             if (this.props.location.state) {
-                this.setState
-                    ({
-                        Client: { value: this.props.location.state["ClientId"] },
-                        fromDate: moment(this.props.location.state["fromDate"]),
-                        toDate: moment(this.props.location.state["toDate"]),
-                        invoiceId: this.props.location.state["invoiceId"]
-                    }, () => {
-                        var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-                            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")
-                        $.ajax({
-                            url,
-                            type: "GET",
-                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
-                        });
-
+                this.setState({
+                    Client: { value: this.props.location.state["ClientId"] },
+                    fromDate: moment(this.props.location.state["fromDate"]),
+                    toDate: moment(this.props.location.state["toDate"]),
+                    invoiceId: this.props.location.state["invoiceId"]
+                }
+                    , () => {
                         var url1 = ApiUrl + "/api/Invoices/GetApprovedInvc?InvoiceId=" + this.state.invoiceId;
                         $.ajax({
                             url: url1,
                             type: "GET",
-                            success: (data) => this.setState({ InvoiceApproved: data["approved"] })
+                            success: (data) => {
+                                this.setState({ InvoiceApproved: data["approved"] }, () => {
+                                    if (this.state.InvoiceApproved != null) {
+
+                                        var url = ApiUrl + "/api/Clients/GetApprovedInvoice?InvoiceId=" + this.state.invoiceId +
+                                            "&ClientId=" + this.state.Client.value +
+                                            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+                                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")
+                                        $.ajax({
+                                            url,
+                                            type: "GET",
+                                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
+                                        });
+                                    }
+                                    else {
+                                        var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
+                                            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+                                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
+                                            "&invoiceId="+ this.state.invoiceId;
+                                        $.ajax({
+                                            url,
+                                            type: "GET",
+                                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
+                                        });
+
+                                    }
+                                })
+                            }
                         });
+                        // var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
+                        //     "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+                        //     "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")
+                        // $.ajax({
+                        //     url,
+                        //     type: "GET",
+                        //     success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
+                        // });
                     })
             }
         });
     }
 
-
     render() {
+
+        console.log(this.state.InvoiceApproved != null)
+
         return (
-
             <div>
-
                 <div id="grid">
                     <div className="col-xs-12" id="invoice">
                         <table className="col-xs-12">
@@ -142,14 +171,12 @@ class ViewOrCancelInvoice extends Component {
                             <tbody className="mytable" >
                                 {
                                     this.state.ClientInvoice.map((item, i) => {
-
                                         return (
                                             <tr key={i}>
                                                 <td className="text-center">   {item.RowNum} </td>
                                                 <td className="text-center" key={item.ServiceId} > {item.ServiceType}
                                                 </td>
                                                 <td className="text-center"> {item.MonthYear}
-                                                    {/* {this.state.ClientInvoice[i]["MonthYear"]}  */}
                                                 </td>
                                                 <td className="text-center"> {item.UnitPriceforDisplay}
                                                 </td>
@@ -161,7 +188,6 @@ class ViewOrCancelInvoice extends Component {
                                         )
                                     })
                                 }
-
                                 <tr>
                                     <td colSpan="3"></td>
                                     <td colSpan="2" className="text-right"><b>Total Charges</b></td>
@@ -173,13 +199,19 @@ class ViewOrCancelInvoice extends Component {
                                             )
                                         })
                                     }
+                                </tr>
 
-                                </tr>
-                                <tr>
-                                    <td colSpan="3"></td>
-                                    <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
-                                    <td className="text-right">  {isNaN(Math.round(this.state.ClientDue["DueAmount"])) ? 0 : Math.round(this.state.ClientDue["DueAmount"])}</td>
-                                </tr>
+                                {this.state.ClientDue == null || this.state.ClientDue["DueAmount"] == 0 ? <span /> :
+                                    <tr>
+                                        <td colSpan="3"></td>
+                                        <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
+                                        <td className="text-right">
+                                            {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["DueAmount"])}
+                                        </td>
+                                    </tr>
+
+                                }
+
                                 <tr>
                                     <td colSpan="3"></td>
                                     <td colSpan="2" className="text-right"><b>Account Balance as of {this.state.invoiceDate}</b></td>
@@ -188,7 +220,7 @@ class ViewOrCancelInvoice extends Component {
                                             {/* return (
                                                 < td className="text-right">{Math.round(this.state.ClientDue["DueAmount"] + ele["Amount"])}  </td>
                                             ) */}
-                                                 if (this.state.ClientDue === null) {
+                                            if (this.state.ClientDue === null) {
                                                 return (
                                                     <td className="text-right">
                                                         {Math.round(ele["Amount"])}
@@ -197,8 +229,8 @@ class ViewOrCancelInvoice extends Component {
                                             }
                                             else {
                                                 return (
-                                                   // < td className="text-right">{Math.round(ele["Amount"])}  </td>
-                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"])}</td>
+                                                    // < td className="text-right">{Math.round(ele["Amount"])}  </td>
+                                                    <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
                                                 )
                                             }
                                         })
@@ -222,36 +254,41 @@ class ViewOrCancelInvoice extends Component {
                 </div>
 
                 <div>
+
                     <div className="col-md-12  button-block myclient-button-block text-center">
                         <p>
                             {
                                 sessionStorage.getItem("roles").indexOf("Coordinator") != -1 ?
                                     <p>
 
-                                        {this.state.InvoiceApproved != null ?
-                                            <p>
-                                                <button className=" btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
-                                                <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
-                                                <button className="mleft10 btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
-                                            </p>
-                                            :
+                                        {this.state.InvoiceApproved == null ?
+
                                             <p>
                                                 <button className="btn btn-success" onClick={this.approveClick.bind(this)}> <span /> Approve</button>
                                                 <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
                                                 <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
                                             </p>
+                                            :
+                                            <p>
+                                                <button className=" btn btn-primary" onClick={this.backClick.bind(this)}>Back </button>
+                                                <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
+                                                <button className="mleft10 btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
+                                            </p>
+
+
                                         }
                                     </p>
                                     :
                                     <p>
-                                        {this.state.InvoiceApproved != null ?
+                                        {this.state.InvoiceApproved == null ?
+
                                             <p>
-                                                <button className="mleft10 btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
                                                 <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
                                                 <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
                                             </p>
                                             :
                                             <p>
+                                                <button className="mleft10 btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
                                                 <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
                                                 <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
                                             </p>
@@ -263,7 +300,7 @@ class ViewOrCancelInvoice extends Component {
                 </div>
                 {
                     this.state.cancelClick ?
-                        <form onSubmit={this.cancelInvoice.bind(this)} onChange={this.validate.bind(this)}>
+                        <form onSubmit={this.delete.bind(this)} onChange={this.validate.bind(this)}>
                             <div className="col-xs-12">
                                 <div className="col-sm-12 form-group">
                                     <label> Description </label>
@@ -285,6 +322,8 @@ class ViewOrCancelInvoice extends Component {
         data.append("InvoiceId", this.state.invoiceId);
         data.append("ApprovedBy", sessionStorage.getItem("userName"));
         data.append("approvedDate", moment(this.state.fromDate).format("MM-DD-YYYY"));
+        data.append("ClientId", this.props.location.state["ClientId"]);
+
 
         var url = ApiUrl + "api/AddData/updateInvoice?InvoiceId=" + this.state.invoiceId
 
@@ -341,7 +380,6 @@ class ViewOrCancelInvoice extends Component {
         window.open(url);
         this.props.history.push({
             state: {
-                // ClientId: this.state.Client.value,
                 fromDate: this.state.fromDate,
                 toDate: this.state.toDate
             },
@@ -413,78 +451,78 @@ class ViewOrCancelInvoice extends Component {
         }
     }
 
-    cancelInvoice(e) {
-        e.preventDefault();
+    // cancelInvoice(e) {
+    //     e.preventDefault();
 
-        confirmAlert({
-            title: 'Confirm to Cancel',
-            message: 'Are you sure to cancel invoice',
-            childrenElement: () => <div>{this.state.invoiceId}</div>,       // Custom UI or Component
-            confirmLabel: 'Confirm',
-            cancelLabel: 'Cancel',
-            onConfirm: () => this.delete.bind(this),    // Action after Confirm
-            onCancel: () => { this.state.cancelClick = !this.state.cancelClick }, // Action after Cancel
-        })
+    //     confirmAlert({
+    //         title: 'Confirm to Cancel',
+    //         message: 'Are you sure to cancel invoice',
+    //         childrenElement: () => <div>{this.state.invoiceId}</div>,       // Custom UI or Component
+    //         confirmLabel: 'Confirm',
+    //         cancelLabel: 'Cancel',
+    //         onConfirm: () => this.delete.bind(this),    // Action after Confirm
+    //         onCancel: () => { this.state.cancelClick = !this.state.cancelClick }, // Action after Cancel
+    //     })
 
-        $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
-            ele.classList.remove("un-touched");
-            return null;
-        })
+    //     $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
+    //         ele.classList.remove("un-touched");
+    //         return null;
+    //     })
 
-        if (!this.validate(e)) {
-            return;
-        }
+    //     if (!this.validate(e)) {
+    //         return;
+    //     }
 
-        var inputs = $(e.currentTarget.getElementsByClassName('form-control')).map((i, el) => {
-            if (el.closest(".form-group").classList.contains("hidden")) {
-                return null;
-            }
-            else {
-                return el;
-            }
-        });
+    //     var inputs = $(e.currentTarget.getElementsByClassName('form-control')).map((i, el) => {
+    //         if (el.closest(".form-group").classList.contains("hidden")) {
+    //             return null;
+    //         }
+    //         else {
+    //             return el;
+    //         }
+    //     });
 
-        var data = new FormData();
-        data.append("Description", this.refs.description.value);
-        data.append("InvoiceId", this.state.invoiceId);
+    //     var data = new FormData();
+    //     data.append("Description", this.refs.description.value);
+    //     data.append("InvoiceId", this.state.invoiceId);
 
-        var url = ApiUrl + "/api/DeleteInvoice/DeleteInvoice?InvoiceId=" + this.state.invoiceId
+    //     var url = ApiUrl + "/api/DeleteInvoice/DeleteInvoice?InvoiceId=" + this.state.invoiceId
 
-        try {
+    //     try {
 
-            MyAjaxForAttachments(
-                url,
-                (data) => {
-                    toast("Invoice Cancellation was successfull!", {
-                        type: toast.TYPE.SUCCESS
-                    });
+    //         MyAjaxForAttachments(
+    //             url,
+    //             (data) => {
+    //                 toast("Invoice Cancellation was successfull!", {
+    //                     type: toast.TYPE.SUCCESS
+    //                 });
 
-                    $("button[name='submit']").show();
-                    return true;
-                },
-                (error) => {
-                    toast("Cancellation cannot be done!", {
-                        type: toast.TYPE.ERROR,
-                        autoClose: false
-                    });
-                    $(".loader").hide();
-                    $("button[name='submit']").show();
-                    return false;
-                },
-                "POST",
-                data
-            );
+    //                 $("button[name='submit']").show();
+    //                 return true;
+    //             },
+    //             (error) => {
+    //                 toast("Cancellation cannot be done!", {
+    //                     type: toast.TYPE.ERROR,
+    //                     autoClose: false
+    //                 });
+    //                 $(".loader").hide();
+    //                 $("button[name='submit']").show();
+    //                 return false;
+    //             },
+    //             "POST",
+    //             data
+    //         );
 
-        }
-        catch (e) {
-            toast("An error occoured, please try again!", {
-                type: toast.TYPE.ERROR
-            });
-            $(".loader").hide();
-            $("button[name='submit']").show();
-            return false;
-        }
-    }
+    //     }
+    //     catch (e) {
+    //         toast("An error occoured, please try again!", {
+    //             type: toast.TYPE.ERROR
+    //         });
+    //         $(".loader").hide();
+    //         $("button[name='submit']").show();
+    //         return false;
+    //     }
+    // }
 
     validate(e) {
 

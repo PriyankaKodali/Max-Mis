@@ -28,8 +28,8 @@ const selectRowProp = {
 
 function onRowSelect(row, isSelected, e) {
 
-    
- }
+
+}
 
 class ClientPayments extends Component {
 
@@ -93,7 +93,7 @@ class ClientPayments extends Component {
 
                 <form className="payform" onSubmit={this.handlePay.bind(this)} onChange={this.validate.bind(this)}  >
                     <div className="col-sm-12">
-                        
+
                         <div className="col-sm-3 form-group">
                             <label>Client</label>
                             <Select className="form-control" name="clientname" ref="client" placeholder="Select Client" value={this.state.Client} options={this.state.Clients} onChange={this.ClientChanged.bind(this)} />
@@ -106,12 +106,14 @@ class ClientPayments extends Component {
 
                         <div className="col-sm-3 form-group">
                             <label>Payment Amount</label>
-                            <input className="form-control" type="text" name="paymentAmount" ref="paymentamount" />        
+                            <input className="form-control" type="text" name="paymentAmount" ref="paymentamount" />
                         </div>
 
                         <div className="col-sm-2 form-group">
-                            <label> Payment Date </label>
-                                    <input className="form-control" type="date" ref="paymentDate" name="paymentDate" />
+                            <label> Payment Date</label>
+                            <input className="form-control" type="date" ref="paymentDate" name="paymentDate" />
+                            {/* <label> Payment Date </label>
+                            <input className="form-control" type="date" ref="paymentDate" name="paymentDate" /> */}
                         </div>
 
                         <div className="col-sm-3">
@@ -124,13 +126,13 @@ class ClientPayments extends Component {
 
                     <div className="col-sm-12 form-group">
                         <label> Description </label>
-                                <textarea className="form-control mytext" type="text" ref="description" name="Description" />
-                      </div>
+                        <textarea className="form-control mytext" type="text" ref="description" name="Description" />
+                    </div>
 
                     <div className="clearfix"> </div>
 
-                    <BootstrapTable className="clienttable" data={this.state.ClientPayment} ref="table" striped hover remote={true} 
-                    selectRow={selectRowProp }
+                    <BootstrapTable className="clienttable" data={this.state.ClientPayment} ref="table" striped hover remote={true}
+                        selectRow={selectRowProp}
                     >
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
@@ -141,6 +143,15 @@ class ClientPayments extends Component {
 
 
                     <div className="col-xs-12">
+
+                        {/* <div className="col-xs-6 form-group text-right">
+                                <label><b>Total Due Amount</b></label>
+                            </div>
+                            
+                            <div>
+                                <p>{this.state.overallDueAmount}</p>
+                            </div> */}
+
                         <div className="col-xs-10 form-group text-right">
                             <label><b>Balance Amount</b></label>
                         </div>
@@ -178,7 +189,7 @@ class ClientPayments extends Component {
     }
 
     handlePay(e) {
-         e.preventDefault();
+        e.preventDefault();
         $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
             ele.classList.remove("un-touched");
             return null;
@@ -201,111 +212,113 @@ class ClientPayments extends Component {
         var tempClientPayment = this.state.ClientPayment;
         var totalDue = 0;
         var balanceAmount = 0;
-        var actualDueamount=0;
-
-        this.state.ClientPayment.map((item,i) =>{
-           console.log(this.refs.table.state.selectedRowKeys.length) ;
+        var actualDueamount = 0;
+        var overallDueAmount = 0
+        this.state.ClientPayment.map((item, i) => {
+            overallDueAmount += item["DueAmount"]
+            console.log(overallDueAmount);
         })
 
         this.state.ClientPayment.map((item, i) => {
 
-            if(this.refs.table.state.selectedRowKeys.length>0)
-                {
+            if (this.refs.table.state.selectedRowKeys.length > 0) {
 
-                     if (this.refs.table.state.selectedRowKeys.indexOf(item["InvoiceId"]) != -1) {
-                var bal = 0;
-                if (TotalAmount > 0) {
-                    if (item["DueAmount"] > TotalAmount) {
-                        bal = Math.round((item["DueAmount"] - TotalAmount) * 1000) / 1000;
-                        TotalAmount = bal;
+                if (this.refs.table.state.selectedRowKeys.indexOf(item["InvoiceId"]) != -1) {
+                    var bal = 0;
+                    if (TotalAmount > 0) {
+                        if (item["DueAmount"] > TotalAmount) {
+                            bal = Math.round((item["DueAmount"] - TotalAmount) * 1000) / 1000;
+                            TotalAmount = bal;
+                        }
+                        else {
+                            TotalAmount -= Math.round((TotalAmount - item["DueAmount"]) * 1000 / 1000);
+                        }
+                        tempClientPayment[i]["Balance"] = bal;
+                        TotalAmount -= item["DueAmount"];
+                        totalDue += tempClientPayment[i]["Balance"];
                     }
+
                     else {
-                        TotalAmount -= Math.round((TotalAmount - item["DueAmount"]) * 1000 / 1000);
+                        tempClientPayment[i]["Balance"] = item["DueAmount"];
+                        totalDue += tempClientPayment[i]["Balance"];
                     }
-                    tempClientPayment[i]["Balance"] = bal;
-                    TotalAmount -= item["DueAmount"];
-                    totalDue += tempClientPayment[i]["Balance"];
+
+                    actualDueamount += item["DueAmount"];
                 }
 
-                else {
-                    tempClientPayment[i]["Balance"] = item["DueAmount"];
-                    totalDue += tempClientPayment[i]["Balance"];
+                console.log(actualDueamount);
+
+                this.state.totalDue = totalDue;
+                this.setState({ ClientPayment: tempClientPayment });
+
+                var data = new FormData();
+
+                //console.log(JSON.stringify(this.refs.table.state.selectedRowKeys));
+
+                data.append("Client_Id", this.state.Client.value);
+                data.append("Currency", this.refs.currency.value);
+                data.append("paymentAmount", this.refs.paymentamount.value);
+                data.append("paymentDate", this.refs.paymentDate.value);
+                data.append("Description", this.refs.description.value);
+                data.append("ClientPayment", JSON.stringify(this.refs.table.state.selectedRowKeys));
+
+                var file = this.refs.chequepdf.files;
+                if (file.length == 1) {
+                    if ($.inArray(this.refs.chequepdf.value.split('.').pop().toLowerCase(), ["doc", "docx", "pdf", "txt"]) == -1) {
+                        return;
+                    }
+
+                    data.append("ChequePdf", file[0]);
                 }
 
-                actualDueamount +=item["DueAmount"] ;
-            }
+                let url = ApiUrl + "/api/AddPayment/PayAmount"
 
-            this.state.totalDue = totalDue;
-        this.setState({ ClientPayment: tempClientPayment });
+                try {
 
-        var data = new FormData();
+                    MyAjaxForAttachments(
+                        url,
+                        (data) => {
+                            toast("Client Payment was successfull!", {
+                                type: toast.TYPE.SUCCESS
+                            });
 
-        //console.log(JSON.stringify(this.refs.table.state.selectedRowKeys));
+                            $("button[name='submit']").show();
+                            return true;
+                        },
+                        (error) => {
+                            toast("An error occoured, please try again!", {
+                                type: toast.TYPE.ERROR,
+                                autoClose: false
+                            });
+                            $(".loader").hide();
+                            $("button[name='submit']").show();
+                            return false;
+                        },
+                        "POST",
+                        data
+                    );
 
-        data.append("Client_Id", this.state.Client.value);
-        data.append("Currency", this.refs.currency.value);
-        data.append("paymentAmount", this.refs.paymentamount.value);
-        data.append("paymentDate", this.refs.paymentDate.value);
-        data.append("Description", this.refs.description.value);
-        data.append("ClientPayment", JSON.stringify(this.refs.table.state.selectedRowKeys));
-
-        var file = this.refs.chequepdf.files;
-        if (file.length == 1) {
-            if ($.inArray(this.refs.chequepdf.value.split('.').pop().toLowerCase(), ["doc", "docx", "pdf", "txt"]) == -1) {
-                return;
-            }
-
-            data.append("ChequePdf", file[0]);
-        }
-
-        let url = ApiUrl + "/api/AddPayment/PayAmount"
-
-        try {
-
-            MyAjaxForAttachments(
-                url,
-                (data) => {
-                    toast("Client Payment was successfull!", {
-                        type: toast.TYPE.SUCCESS
-                    });
-
-                    $("button[name='submit']").show();
-                    return true;
-                },
-                (error) => {
+                }
+                catch (e) {
                     toast("An error occoured, please try again!", {
-                        type: toast.TYPE.ERROR,
-                        autoClose: false
+                        type: toast.TYPE.ERROR
                     });
                     $(".loader").hide();
                     $("button[name='submit']").show();
                     return false;
-                },
-                "POST",
-                data
-            );
-
-        }
-        catch (e) {
-            toast("An error occoured, please try again!", {
-                type: toast.TYPE.ERROR
-            });
-            $(".loader").hide();
-            $("button[name='submit']").show();
-            return false;
-        }
-     }
-
-                else{
-                    alert("Select service for the payment");
                 }
+            }
+
+            else {
+                alert("Select service for the payment");
+            }
         });
 
     }
 
     validate(e) {
 
-       var success = ValidateForm(e);
+        var success = ValidateForm(e);
 
         if (!this.state.Client || !this.state.Client.value) {
             success = false;

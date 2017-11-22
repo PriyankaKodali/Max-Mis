@@ -53,14 +53,15 @@ class GenerateInvoice extends Component {
                     }, () => {
                         var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
                             "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")
+                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
+                            "&invoiceId="+this.state.invoiceId;
                         $.ajax({
                             url,
                             type: "GET",
                             success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
                         });
 
-                        var url1 = ApiUrl + "/api/Invoices/GpetInvCount?InvoiceId=" + this.state.invoiceId;
+                        var url1 = ApiUrl + "/api/Clients/GetClientInvoiceCount?InvoiceId=" + this.state.invoiceId;
                         $.ajax({
                             url: url1,
                             type: "GET",
@@ -198,20 +199,14 @@ class GenerateInvoice extends Component {
                                                 )
                                             }
                                             else {
-                                                  var totalAmount=0;
-                                                 this.state.ClientInvoice.map((item, i) => {                                    
-                                                     totalAmount +=item["Amount"]
-                                                      return (
+                                                return (
                                                    // < td className="text-right">{Math.round(ele["Amount"])}  </td>
-                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"])+ Math.round(this.state.totalAmount)}</td>
+                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"])}</td>
                                                 )
-                                                 })
-                                               
                                             }
                                         })
                                     }
                                 </tr>
-
                             </tbody>
                         </table>
                         <hr />
@@ -224,19 +219,29 @@ class GenerateInvoice extends Component {
                             </div>
                         </footer>
                     </div>
-
                     <div className="clearfix"></div>
                 </div>
 
                 <div className="col-md-12" style={{ textAlign: "center", paddingTop: "15px", marginBottom: "30px" }}>
                     {/* <button className="btn btn-success" onClick={this.handleSubmit.bind(this)}> Save </button> <span />
                     <button className="btn btn-success " onClick={this.pdfToHTML.bind(this)}> Generate Pdf</button> */}
-
                     <button className="btn btn-success" onClick={this.handleSubmit.bind(this)}> Save </button>
-                </div>
+                      <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
+                 </div>
 
             </div>
         )
+    }
+
+    backClick(e)
+    {
+          this.props.history.push({
+            state: {
+                fromDate: this.state.fromDate,
+                toDate: this.state.toDate
+            },
+            pathname: "/Client"
+        })
     }
 
 
@@ -283,7 +288,6 @@ class GenerateInvoice extends Component {
         data.append("ClientAddress", this.state.ClientInvoice[0]["Address"]);
         data.append("InvoiceDate", moment(this.state.fromDate).format("MM/DD/YYYY"));
         data.append("InvoiceId", this.state.invoiceId);
-        data.append("InvoiceTime", this.state.InvoiceTime);
         data.append("TotalLines", this.state.ClientInvoice[0]["LineCount"]);
         data.append("CreatedBy", sessionStorage.getItem("userName"));
 
@@ -293,7 +297,6 @@ class GenerateInvoice extends Component {
         else {
             data.append("UnpaidBalance", this.state.ClientDue["DueAmount"]);
         }
-
         data.append("ClientService", this.state.ClientInvoice[0]["ServiceId"]);
         data.append("UnitPrice", this.state.ClientInvoice[0]["UnitPrice"]);
         data.append("CurrentAmount", this.state.ClientInvoice[0]["Amount"]);
