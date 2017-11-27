@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import { Link } from 'react-router-link';
-// import 'bootstrap/dist/css/bootstrap-theme.css';
-// import 'bootstrap/dist/css/bootstrap.css';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { ApiUrl } from '.././Config';
 import Select from 'react-select';
@@ -12,8 +10,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { showErrorsForInput, setUnTouched, ValidateForm } from '.././Validation';
 import { MyAjaxForAttachments, MyAjax } from './../MyAjax';
 import { toast } from 'react-toastify';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import validate from 'validate.js';
 
-var validate = require('validate.js');
+// var validate = require('validate.js');
 var ReactBSTable = require('react-bootstrap-table');
 var BootstrapTable = ReactBSTable.BootstrapTable;
 var TableHeaderColumn = ReactBSTable.TableHeaderColumn;
@@ -23,12 +24,55 @@ var moment = require('moment');
 const selectRowProp = {
     mode: 'checkbox',
     clickToSelect: true,
-    onSelect: onRowSelect.bind(this),
+    onSelect: onRowSelect,
+    onSelectAll: onSelectAll
 };
 
 function onRowSelect(row, isSelected, e) {
 
+    var TotalPaid = document.getElementById("hiddenAmount").value;
 
+    if (isSelected) {
+        var DueAmount = row.DueAmount;
+
+        if (TotalPaid > DueAmount) {
+            row.Balance = 0;
+            TotalPaid -= DueAmount;
+            document.getElementById("hiddenAmount").value = TotalPaid;
+        }
+        else {
+            row.Balance = (row.DueAmount - TotalPaid).toFixed(3);
+            TotalPaid = 0;
+            document.getElementById("hiddenAmount").value = TotalPaid;
+        }
+    }
+    else {
+        row.Balance = row.DueAmount
+    }
+
+}
+
+function onSelectAll(isSelected, rows) {
+
+    var PaidAmount = document.getElementById("paymentAmount").value;
+
+    if (isSelected) {
+        for (let i = 0; i < rows.length; i++) {
+            if (PaidAmount > rows[i].DueAmount) {
+                rows[i].Balance = 0;
+                PaidAmount -= rows[i].DueAmount;
+            }
+            else {
+                rows[i].Balance = (rows[i].DueAmount - PaidAmount).toFixed(3);
+                PaidAmount = 0;
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].Balance = rows[i].DueAmount;
+        }
+    }
 }
 
 class ClientPayments extends Component {
@@ -39,16 +83,18 @@ class ClientPayments extends Component {
             Client: {},
             Clients: [],
             Services: [],
-            paymentDate: '',
-            paymentamount: {},
             ClientDetail: [],
             ClientPayment: [],
             BalanceAmount: '',
             InvoiceId: {},
             ServiceId: {},
             DueAmount: {},
-            paymentAmount: null, Description: null,
-            amount: 0
+            paymentamount: 0, Description: null,
+            amount: 0,
+            ClientDue: [],
+            hiddenAmount: {}, errors: {},
+            isButtonDisabled: false
+
         }
     }
 
@@ -74,7 +120,7 @@ class ClientPayments extends Component {
         $.ajax({
             url,
             type: "get",
-            success: (data) => this.setState({ ClientPayment: data["paymentDetails"] })
+            success: (data) => this.setState({ ClientPayment: data["paymentDetails"], ClientDue: data["overallDue"] })
         })
     }
 
@@ -92,8 +138,7 @@ class ClientPayments extends Component {
                 </div>
 
                 <form className="payform" onSubmit={this.handlePay.bind(this)} onChange={this.validate.bind(this)}  >
-                    <div className="col-sm-12">
-
+                    <div className="col-sm-12 form-group">
                         <div className="col-sm-3 form-group">
                             <label>Client</label>
                             <Select className="form-control" name="clientname" ref="client" placeholder="Select Client" value={this.state.Client} options={this.state.Clients} onChange={this.ClientChanged.bind(this)} />
@@ -106,14 +151,13 @@ class ClientPayments extends Component {
 
                         <div className="col-sm-3 form-group">
                             <label>Payment Amount</label>
-                            <input className="form-control" type="text" name="paymentAmount" ref="paymentamount" />
+                            <input className="form-control" id="paymentAmount" type="text" name="PaymentAmount" ref="paymentamount" onChange={this.handlePaymentAmount.bind(this)} />
+                            <input id="hiddenAmount" type="hidden" name="hiddenAmount" ref="hiddenAmount" value={this.state.hiddenAmount} />
                         </div>
 
                         <div className="col-sm-2 form-group">
-                            <label> Payment Date</label>
-                            <input className="form-control" type="date" ref="paymentDate" name="paymentDate" />
-                            {/* <label> Payment Date </label>
-                            <input className="form-control" type="date" ref="paymentDate" name="paymentDate" /> */}
+                            <label>Payment Date</label>
+                            <input className="form-control" type="date" ref="paymentDate" name="PayDate" />
                         </div>
 
                         <div className="col-sm-3">
@@ -133,7 +177,9 @@ class ClientPayments extends Component {
 
                     <BootstrapTable className="clienttable" data={this.state.ClientPayment} ref="table" striped hover remote={true}
                         selectRow={selectRowProp}
+
                     >
+                        {/* <TableHeaderColumn columnClassName="invoice" dataField='check' dataFormat={this.RowCheck.bind(this)} width='18'> </TableHeaderColumn> */}
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
                         <TableHeaderColumn dataField="InvoiceCreatedDate" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
@@ -141,34 +187,25 @@ class ClientPayments extends Component {
                         <TableHeaderColumn dataField="Balance" width="40" > Balance </TableHeaderColumn>
                     </BootstrapTable>
 
-
-                    <div className="col-xs-12">
-
-                        {/* <div className="col-xs-6 form-group text-right">
-                                <label><b>Total Due Amount</b></label>
-                            </div>
-                            
-                            <div>
-                                <p>{this.state.overallDueAmount}</p>
-                            </div> */}
-
-                        <div className="col-xs-10 form-group text-right">
-                            <label><b>Balance Amount</b></label>
+                    <div>
+                        <div className="col-sm-12" style={{ textAlign: "center" }}>
+                            <p className="col-xs-2" ><b>Total DueAmount : <span /> </b>     {this.state.ClientDue}  </p>
+                            <p className="col-xs-2"  > <b>Balance Amount : <span /></b> {this.state.totalDue}  </p>
                         </div>
-
-                        <div className="col-xs-2 form-group" >
-                            <p>{this.state.totalDue}</p>
-                        </div>
-
                     </div>
                     <div className="col-md-12 button-block paybutton">
-                        <button type="submit" name="submit" className="btn btn-primary mybutton">Submit</button>
+                        <button type="submit" name="submit" className="btn btn-primary mybutton" disabled={this.state.isButtonDisabled} > Submit </button>
                     </div>
 
                 </form>
 
             </div>
         )
+    }
+
+
+    handlePaymentAmount(val) {
+        this.setState({ hiddenAmount: this.refs.paymentamount.value })
     }
 
     ClientChanged(val) {
@@ -181,7 +218,6 @@ class ClientPayments extends Component {
                 this.getClientPayments();
             }
         });
-
     }
 
     MonthFormatter(cell, row) {
@@ -189,6 +225,7 @@ class ClientPayments extends Component {
     }
 
     handlePay(e) {
+
         e.preventDefault();
         $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
             ele.classList.remove("un-touched");
@@ -196,6 +233,7 @@ class ClientPayments extends Component {
         })
 
         if (!this.validate(e)) {
+            this.setState({ isButtonDisabled: this.state.isButtonDisabled });
             return;
         }
 
@@ -214,10 +252,6 @@ class ClientPayments extends Component {
         var balanceAmount = 0;
         var actualDueamount = 0;
         var overallDueAmount = 0
-        this.state.ClientPayment.map((item, i) => {
-            overallDueAmount += item["DueAmount"]
-            console.log(overallDueAmount);
-        })
 
         this.state.ClientPayment.map((item, i) => {
 
@@ -237,7 +271,6 @@ class ClientPayments extends Component {
                         TotalAmount -= item["DueAmount"];
                         totalDue += tempClientPayment[i]["Balance"];
                     }
-
                     else {
                         tempClientPayment[i]["Balance"] = item["DueAmount"];
                         totalDue += tempClientPayment[i]["Balance"];
@@ -246,20 +279,17 @@ class ClientPayments extends Component {
                     actualDueamount += item["DueAmount"];
                 }
 
-                console.log(actualDueamount);
-
                 this.state.totalDue = totalDue;
                 this.setState({ ClientPayment: tempClientPayment });
 
                 var data = new FormData();
-
-                //console.log(JSON.stringify(this.refs.table.state.selectedRowKeys));
 
                 data.append("Client_Id", this.state.Client.value);
                 data.append("Currency", this.refs.currency.value);
                 data.append("paymentAmount", this.refs.paymentamount.value);
                 data.append("paymentDate", this.refs.paymentDate.value);
                 data.append("Description", this.refs.description.value);
+                data.append("PaymentCreatedBy", sessionStorage.getItem("userName"));
                 data.append("ClientPayment", JSON.stringify(this.refs.table.state.selectedRowKeys));
 
                 var file = this.refs.chequepdf.files;
@@ -283,6 +313,7 @@ class ClientPayments extends Component {
                             });
 
                             $("button[name='submit']").show();
+                            this.Refresh();
                             return true;
                         },
                         (error) => {
@@ -297,7 +328,6 @@ class ClientPayments extends Component {
                         "POST",
                         data
                     );
-
                 }
                 catch (e) {
                     toast("An error occoured, please try again!", {
@@ -316,13 +346,26 @@ class ClientPayments extends Component {
 
     }
 
-    validate(e) {
+    Refresh() {
 
+        this.refs.paymentamount.value = '',
+        this.refs.description.value = '',
+        this.state.isButtonDisabled = false
+    }
+
+    validate(e) {
+        let fields = this.state.fields;
+        let IsError = false;
+        let errors = {};
         var success = ValidateForm(e);
 
         if (!this.state.Client || !this.state.Client.value) {
             success = false;
             showErrorsForInput(this.refs.client.wrapper, ["Please select a client"]);
+        }
+        if (!this.refs.paymentDate.value) {
+            success = false;
+            showErrorsForInput(this.refs.paymentDate, ["Please select payment date"]);
         }
 
         return success;

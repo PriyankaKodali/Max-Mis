@@ -29,7 +29,8 @@
     "react-toastify": "^2.1.5",
     "reactjs-bootstrap-table": "^1.0.12",
     "validate-js": "^2.0.1",
-    "validate.js": "^0.12.0"
+    "validate.js": "^0.12.0",
+    "validator": "^9.1.2"
   },
   "scripts": {
     "start": "react-scripts start",

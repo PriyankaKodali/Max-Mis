@@ -36,6 +36,7 @@ window.isLoggedIn = sessionStorage.getItem("access_token") !== null;
 ReactDOM.render((
     <HashRouter>
         <div>
+            
             <ToastContainer autoClose={3000} position="top-center" />
 
             <App>
@@ -48,6 +49,7 @@ ReactDOM.render((
                 <Route exact path='/ViewOrCancelInvoice/:id?' render={(nextState) => requireAuth(nextState, <ViewOrCancelInvoice location={nextState.location} history={nextState.history} match={nextState.match} />)} />
                 <Route exact path='/LogIn' component={LogIn} />
             </App>
+            
         </div>
     </HashRouter>
 ),

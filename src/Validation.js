@@ -2,22 +2,23 @@ import { validate } from 'validate.js'
 import $ from 'jquery';
 
 var constraints = {
+     PayDate: {
+         presence: true
+    },
+
     Description: {
         presence: true,
          length: { minimum: 5 }
     },
-    paymentDate: {
-        presence: true
-    },
-    paymentAmount:{
-        presence:true
-        // fromat:{
-        //     pattern:"/^[-+]?[0-9]+\.[0-9]+$/",
-        //     message:"is not valid"
-        // }
+    PaymentAmount: {
+        presence:true,
+        format:{
+             pattern:"(\\d+)(\\.)?(\\d+)?",
+            message:"is not valid"
+        }
     }
+     
 }
-
 
 validate.validators.presence.message = "is required";
 
@@ -33,7 +34,6 @@ var removePreviousErrors = (formGroup) => {
     })
     return;
 }
-
 
 var showErrorsForInput = (input, errors) => {
     // This is the root of the input
@@ -61,7 +61,6 @@ var showErrorsForInput = (input, errors) => {
     return;
 }
 
-
 var showErrors = (inputs, errors) => {
     // We loop through all the inputs and show the errors for that input
 
@@ -69,7 +68,7 @@ var showErrors = (inputs, errors) => {
         showErrorsForInput(input, errors && errors[input.name]);
         return null;
     });
-    return;
+    return; 
 }
 
 var ValidateForm = (e) => {
@@ -135,7 +134,6 @@ var ValidateForm = (e) => {
     }
     return true;
 }
-
 
 var setUnTouched = (doc) => {
     $(doc.getElementsByClassName('form-control')).map((i, e) => {

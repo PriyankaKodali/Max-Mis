@@ -30,8 +30,6 @@ class Client extends Component {
         var isLoggedIn = sessionStorage.getItem("access_token") != null;
         window.isLoggedIn = isLoggedIn;
 
-
-
         this.state = {
             currentPage: 1, sizePerPage: 10, dataTotalSize: 0,
             Client_Id: {},
@@ -99,9 +97,6 @@ class Client extends Component {
                     TotalMinutes: data["TotalMinutes"]
                 })
             })
-
-
-
     }
 
 
@@ -209,19 +204,19 @@ class Client extends Component {
     }
 
     invoiceFormatter(cell, row) {
-     //   console.log(row["GeneratedBy"]);
-        if (row["ApprovedBy"]) {
+     
+        if (row["Status"] === "Approved") {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="View Invoice" data-original-title="View Invoive">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='View Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'green' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='View Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'green' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["Status"], row["AmountPerUnit"])} ></i>
                 </a>
             )
         }
 
-        else if (row["GeneratedBy"]) {
+        else if (row["Status"] ==="Generated") {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="Approve Invoice" data-original-title="Approve Invoice">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='Approve Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'orange' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='Approve Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'orange' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"],  row["Status"], row["AmountPerUnit"])} ></i>
                 </a>
             )
         }
@@ -229,7 +224,7 @@ class Client extends Component {
         else {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="Generate Invoice" data-original-title="Generate Invoive">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["GeneratedBy"], row["AmountPerUnit"], row["ApprovedBy"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"],  row["Status"], row["AmountPerUnit"] )} ></i>
                 </a>
             )
         }
@@ -246,7 +241,7 @@ class Client extends Component {
         });
     }
 
-    gotoClientInvoice(ClientId, fromDate, toDate, EmptyJobs, InvoiceGenerated, AmountPerUnit, ApprovedBy) {
+    gotoClientInvoice(ClientId, fromDate, toDate, EmptyJobs, Status, AmountPerUnit) {
 
         var fromDate = this.state.fromDate.format("MM-DD-YYYY");
         var toDate = this.state.toDate.format("MM-DD-YYYY");
@@ -262,7 +257,7 @@ class Client extends Component {
             }
 
             else {
-                if (InvoiceGenerated) {
+                if (Status!=null) {
                     var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
                         "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
 
@@ -308,7 +303,6 @@ class Client extends Component {
                         }
                     });
                 }
-
             }
         }
 

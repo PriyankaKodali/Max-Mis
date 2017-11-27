@@ -6,13 +6,29 @@ import { MyAjax, MyAjaxForAttachments } from '.././MyAjax';
 import { ApiUrl } from '.././Config';
 import { toast } from 'react-toastify';
 import rasterizehtml from 'rasterizehtml';
-import { confirmAlert } from 'react-confirm-alert';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 var moment = require('moment');
 window.rasterizehtml = rasterizehtml;
 
 
+//  function Submit()
+//     {
+//      confirmAlert({
+//       title: 'Confirm to Cancel',                        // Title dialog
+//       message: 'Are you sure to delete this Invoice',               // Message dialog
+//       childrenElement: () => <div>Custom UI</div>,       // Custom UI or Component
+//       confirmLabel: 'Confirm',                           // Text button confirm
+//      cancelLabel: 'Cancel',                             // Text button cancel
+//       onConfirm: ()=>{ confirmed()}    // Action after Confirm
+//    //  onCancel: () => {this.cancel()},         // Action after Cancel
+//     })
+//     };
+//     function  confirmed()
+//     {  
+//       alert("Conform Clicked");
+//     }
 
 class ViewOrCancelInvoice extends Component {
 
@@ -33,10 +49,11 @@ class ViewOrCancelInvoice extends Component {
             unpaidBal: 0,
             invoiceId: {},
             companyAddress: "MAX TRANS SYSTEMS LLC 1032 EAST WACO  KERMIT, TX 79745",
-            InvoiceTime: moment().format("hh:mm:ss"),
+            // InvoiceTime: moment().format("hh:mm:ss"),
             ClientAddress: "",
             ClientDue: {},
-            InvoiceApproved: {}
+            InvoiceApproved: {},
+            showDialog: false
         }
     }
 
@@ -74,35 +91,23 @@ class ViewOrCancelInvoice extends Component {
                                     else {
                                         var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
                                             "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-                                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
-                                            "&invoiceId="+ this.state.invoiceId;
+                                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
+                                            "&invoiceId=" + this.state.invoiceId;
                                         $.ajax({
                                             url,
                                             type: "GET",
                                             success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
                                         });
-
                                     }
                                 })
                             }
                         });
-                        // var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-                        //     "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-                        //     "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")
-                        // $.ajax({
-                        //     url,
-                        //     type: "GET",
-                        //     success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
-                        // });
                     })
             }
         });
     }
 
     render() {
-
-        console.log(this.state.InvoiceApproved != null)
-
         return (
             <div>
                 <div id="grid">
@@ -201,19 +206,22 @@ class ViewOrCancelInvoice extends Component {
                                     }
                                 </tr>
 
-                                {this.state.ClientDue == null || this.state.ClientDue["DueAmount"] == 0 ? <span /> :
-                                    <tr>
-                                        <td colSpan="3"></td>
-                                        <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
-                                        <td className="text-right">
-                                            {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["DueAmount"])}
-                                        </td>
-                                    </tr>
+                                {
+                                    this.state.ClientDue == null || this.state.ClientDue["TotalDueAmount"] == 0 ? <span /> :
+                                        <tr>
+                                            <td colSpan="3"></td>
+                                            <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
+                                            <td className="text-right">
+                                                {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["TotalDueAmount"])}
+                                            </td>
+                                        </tr>
 
                                 }
 
                                 <tr>
                                     <td colSpan="3"></td>
+
+
                                     <td colSpan="2" className="text-right"><b>Account Balance as of {this.state.invoiceDate}</b></td>
                                     {
                                         this.state.ClientInvoice.map((ele, i) => {
@@ -229,8 +237,7 @@ class ViewOrCancelInvoice extends Component {
                                             }
                                             else {
                                                 return (
-                                                    // < td className="text-right">{Math.round(ele["Amount"])}  </td>
-                                                    <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
+                                                    <td className="text-right"> {Math.round(this.state.ClientDue["TotalDueAmount"]) + Math.round(ele["Amount"])}</td>
                                                 )
                                             }
                                         })
@@ -254,7 +261,6 @@ class ViewOrCancelInvoice extends Component {
                 </div>
 
                 <div>
-
                     <div className="col-md-12  button-block myclient-button-block text-center">
                         <p>
                             {
@@ -270,12 +276,12 @@ class ViewOrCancelInvoice extends Component {
                                             </p>
                                             :
                                             <p>
-                                                <button className=" btn btn-primary" onClick={this.backClick.bind(this)}>Back </button>
+
+                                                <button className="btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
                                                 <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
-                                                <button className="mleft10 btn btn-success" onClick={this.pdfToHTML.bind(this)} >Download Pdf</button>
+                                                <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}>Back </button>
+
                                             </p>
-
-
                                         }
                                     </p>
                                     :
@@ -300,21 +306,38 @@ class ViewOrCancelInvoice extends Component {
                 </div>
                 {
                     this.state.cancelClick ?
-                        <form onSubmit={this.delete.bind(this)} onChange={this.validate.bind(this)}>
+                        <form >
                             <div className="col-xs-12">
                                 <div className="col-sm-12 form-group">
                                     <label> Description </label>
                                     <textarea className="form-control mytext" type="text" ref="description" name="Description" autoFocus required />
                                 </div>
                                 <div className="col-md-12 button-block text-center">
-                                    <button className="btn btn-primary" onClick={this.delete.bind(this)} > Save</button>
+                                    {/* <button className="btn btn-danger" onClick={() => { this.setState({ showDialog: !this.state.showDialog }) }} >Click here to cancel invoice</button> */}
+                                     <button className="btn btn-danger" onClick={this.delete.bind(this)} >Click here to cancel invoice</button>   
+                                    {/* <button className="btn btn-danger" onClick={Submit()} >Click here to cancel invoice</button> */}
                                 </div>
                             </div>
                         </form>
                         : <div />
                 }
+                {/* <div>
+                {
+                    this.state.showDialog ?
+                        <ReactConfirmAlert
+                            title="Confirm to submit"
+                            message="Are you sure to do this."
+                            confirmLabel="Confirm"
+                            cancelLabel="Cancel"
+                            onConfirm={() => this.delete()}
+                            onCancel={() => this.backClick()}
+                        />
+                        : <div />
+                }
+                </div> */}
+
             </div>
-        )
+        );
     }
 
     approveClick() {
@@ -421,7 +444,6 @@ class ViewOrCancelInvoice extends Component {
                     toast("Invoice Cancellation was successfull!", {
                         type: toast.TYPE.SUCCESS
                     });
-
                     $("button[name='submit']").show();
                     this.backClick();
                     return true;
@@ -439,7 +461,6 @@ class ViewOrCancelInvoice extends Component {
                 "POST",
                 data
             );
-
         }
         catch (e) {
             toast("An error occoured, please try again!", {
@@ -450,79 +471,6 @@ class ViewOrCancelInvoice extends Component {
             return false;
         }
     }
-
-    // cancelInvoice(e) {
-    //     e.preventDefault();
-
-    //     confirmAlert({
-    //         title: 'Confirm to Cancel',
-    //         message: 'Are you sure to cancel invoice',
-    //         childrenElement: () => <div>{this.state.invoiceId}</div>,       // Custom UI or Component
-    //         confirmLabel: 'Confirm',
-    //         cancelLabel: 'Cancel',
-    //         onConfirm: () => this.delete.bind(this),    // Action after Confirm
-    //         onCancel: () => { this.state.cancelClick = !this.state.cancelClick }, // Action after Cancel
-    //     })
-
-    //     $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
-    //         ele.classList.remove("un-touched");
-    //         return null;
-    //     })
-
-    //     if (!this.validate(e)) {
-    //         return;
-    //     }
-
-    //     var inputs = $(e.currentTarget.getElementsByClassName('form-control')).map((i, el) => {
-    //         if (el.closest(".form-group").classList.contains("hidden")) {
-    //             return null;
-    //         }
-    //         else {
-    //             return el;
-    //         }
-    //     });
-
-    //     var data = new FormData();
-    //     data.append("Description", this.refs.description.value);
-    //     data.append("InvoiceId", this.state.invoiceId);
-
-    //     var url = ApiUrl + "/api/DeleteInvoice/DeleteInvoice?InvoiceId=" + this.state.invoiceId
-
-    //     try {
-
-    //         MyAjaxForAttachments(
-    //             url,
-    //             (data) => {
-    //                 toast("Invoice Cancellation was successfull!", {
-    //                     type: toast.TYPE.SUCCESS
-    //                 });
-
-    //                 $("button[name='submit']").show();
-    //                 return true;
-    //             },
-    //             (error) => {
-    //                 toast("Cancellation cannot be done!", {
-    //                     type: toast.TYPE.ERROR,
-    //                     autoClose: false
-    //                 });
-    //                 $(".loader").hide();
-    //                 $("button[name='submit']").show();
-    //                 return false;
-    //             },
-    //             "POST",
-    //             data
-    //         );
-
-    //     }
-    //     catch (e) {
-    //         toast("An error occoured, please try again!", {
-    //             type: toast.TYPE.ERROR
-    //         });
-    //         $(".loader").hide();
-    //         $("button[name='submit']").show();
-    //         return false;
-    //     }
-    // }
 
     validate(e) {
 

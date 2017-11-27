@@ -6,7 +6,7 @@ import { ApiUrl } from '../Config';
 import './Login.css';
 import { showErrorsForInput, setUnTouched, ValidateForm } from '.././Validation';
 import { MyAjaxForAttachments, MyAjax } from './../MyAjax';
-
+import validate from 'validate.js';
 
 
 class LogIn extends Component {
@@ -32,7 +32,7 @@ class LogIn extends Component {
                             <img className="logo" src="Images/logo.png" alt="" />
                         </div>
 
-                        <form onSubmit={this.handleSubmit.bind(this)} onChange={this.validate.bind(this)}>
+                        <form onSubmit={this.handleSubmit.bind(this)}>
                             <div className="col-xs-12">
                                 <div className="col-xs-4 form-group">
                                     <input className="form-control" type="text" placeholder="UserName" name="username" autoComplete="off" ref="username" />
@@ -117,10 +117,10 @@ class LogIn extends Component {
         }
     }
 
-    validate(e) {
-        var success = ValidateForm(e);
-        return success;
-    }
+    // validate(e) {
+    //     var success = ValidateForm(e);
+    //     return success;
+    // }
 
 }
 

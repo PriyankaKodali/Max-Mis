@@ -201,7 +201,7 @@ class GenerateInvoice extends Component {
                                             else {
                                                 return (
                                                    // < td className="text-right">{Math.round(ele["Amount"])}  </td>
-                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"])}</td>
+                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
                                                 )
                                             }
                                         })
@@ -245,26 +245,24 @@ class GenerateInvoice extends Component {
     }
 
 
-    pdfToHTML() {
+ // pdfToHTML() {
 
-        // var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-        //     "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-        //     "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY");
-        // window.open(url);
+    //     // var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
+    //     //     "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+    //     //     "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY");
+    //     // window.open(url);
 
-        this.props.history.push({
-            state: {
-                // ClientId: this.state.Client.value,
-                fromDate: this.state.fromDate,
-                toDate: this.state.toDate
-            },
-            pathname: "/Client"
-        })
-    }
+    //     this.props.history.push({
+    //         state: {
+    //             // ClientId: this.state.Client.value,
+    //             fromDate: this.state.fromDate,
+    //             toDate: this.state.toDate
+    //         },
+    //         pathname: "/Client"
+    //     })
+ // }
 
     handleSubmit() {
-
-        //    e.preventDefault();
         var amount = 0;
         var unitPrice = 0;
         var totalcharges = 0;
@@ -278,7 +276,6 @@ class GenerateInvoice extends Component {
         }
 
         var services = this.state.ClientInvoice
-
         var data = new FormData();
 
         // data.append("Invoices", JSON.stringify(this.state.ClientInvoice.ServiceId));
@@ -315,7 +312,7 @@ class GenerateInvoice extends Component {
                         type: toast.TYPE.SUCCESS
                     });
                     $("button[name='submit']").show();
-                    this.pdfToHTML();
+                    this.backClick();
                     return true;
                 },
                 (error) => {
