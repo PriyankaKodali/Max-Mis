@@ -11,8 +11,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 import Client from './Client/Client';
 import './Client/Client.css';
-// import Doctor from './Doctor/Doctor';
-// import './Doctor/Doctor.css';
+
 import Employee from './Employee/Employee';
 import './Employee/Employee.css';
 import GenerateInvoice from './GenerateInvoice/GenerateInvoice';

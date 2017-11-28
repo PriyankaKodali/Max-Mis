@@ -5,13 +5,14 @@ import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { ApiUrl } from '.././Config';
 import Select from 'react-select';
 import './ClientPayments.css'
-import DatePicker from 'react-datepicker/dist/react-datepicker';
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { showErrorsForInput, setUnTouched, ValidateForm } from '.././Validation';
+
+import { showErrorsForInput, setUnTouched, ValidateForm } from '../Validation';
 import { MyAjaxForAttachments, MyAjax } from './../MyAjax';
 import { toast } from 'react-toastify';
-import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
+// import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+// import 'react-confirm-alert/src/react-confirm-alert.css';
 import validate from 'validate.js';
 
 // var validate = require('validate.js');
@@ -19,7 +20,6 @@ var ReactBSTable = require('react-bootstrap-table');
 var BootstrapTable = ReactBSTable.BootstrapTable;
 var TableHeaderColumn = ReactBSTable.TableHeaderColumn;
 var moment = require('moment');
-
 
 const selectRowProp = {
     mode: 'checkbox',
@@ -176,9 +176,7 @@ class ClientPayments extends Component {
                     <div className="clearfix"> </div>
 
                     <BootstrapTable className="clienttable" data={this.state.ClientPayment} ref="table" striped hover remote={true}
-                        selectRow={selectRowProp}
-
-                    >
+                        selectRow={selectRowProp} >
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
                         <TableHeaderColumn dataField="InvoiceCreatedDate" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
@@ -196,9 +194,7 @@ class ClientPayments extends Component {
                     <div className="col-md-12 button-block paybutton">
                         <button type="submit" name="submit" className="btn btn-primary mybutton" disabled={this.state.isButtonDisabled} > Submit </button>
                     </div>
-
                 </form>
-
             </div>
         )
     }

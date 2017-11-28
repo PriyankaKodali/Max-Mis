@@ -9,9 +9,7 @@ import { MyAjax, MyAjaxForAttachments } from '.././MyAjax';
 import { ApiUrl } from '.././Config';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
-import Picker from 'react-month-picker'
 import 'react-datepicker/dist/react-datepicker.css';
-import 'react-month-picker-input/dist/react-month-picker-input.css'
 
 var ReactBSTable = require('react-bootstrap-table');
 var BootstrapTable = ReactBSTable.BootstrapTable;
@@ -126,7 +124,8 @@ class Client extends Component {
                             <div className="col-md-1 mybutton">
                                 <button type="button" className="btn btn-default pull-left headerbtn" >
                                     <span className="glyphicon glyphicon-search"></span>
-                                </button></div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,7 +140,7 @@ class Client extends Component {
 
                         <div className="col-md-3 form-group" key={this.state.fromDate}>
                             <label> Month </label>
-                            <DatePicker className="form-control" name="fromDate" ref="fromDate" selected={this.state.fromDate} dateFormat="MMM-YYYY" onChange={(val) => this.setState({ fromDate: val })} />
+                            <DatePicker className="form-control" name="fromDate" ref="fromDate" selected={moment().startOf('month')} dateFormat="MMM-YYYY" onChange={(val) => this.setState({ fromDate: val })} />
                         </div>
 
                         <div className="col-md-3 button-block myclient-button-block text-center">

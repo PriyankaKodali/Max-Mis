@@ -8,7 +8,7 @@ import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { MyAjax } from '.././MyAjax';
 import { ApiUrl } from '.././Config';
 import Select from 'react-select';
-import DatePicker from 'react-datepicker/dist/react-datepicker';
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 var ReactBSTable = require('react-bootstrap-table');
@@ -85,8 +85,8 @@ class Employee extends Component {
                                 </button></div>
                         </div>
                     </div>
-                </div>
-{/* 
+                </div> 
+ {/* 
                 {
                     this.state.searchClick ? */}
                         <form className="formSearch1" id="searchform">
