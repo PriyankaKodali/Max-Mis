@@ -222,7 +222,7 @@ class ViewOrCancelInvoice extends Component {
                                     <td colSpan="3"></td>
 
 
-                                    <td colSpan="2" className="text-right"><b>Account Balance as of {this.state.invoiceDate}</b></td>
+                                    <td colSpan="2" className="text-right"><b>Account Balance as of ( {this.state.invoiceDate} ) </b></td>
                                     {
                                         this.state.ClientInvoice.map((ele, i) => {
                                             {/* return (
@@ -306,23 +306,22 @@ class ViewOrCancelInvoice extends Component {
                 </div>
                 {
                     this.state.cancelClick ?
-                        <form >
+                        <form onChange={this.validate.bind(this)} onSubmit={this.delete.bind(this)}>
                             <div className="col-xs-12">
                                 <div className="col-sm-12 form-group">
                                     <label> Description </label>
-                                    <textarea className="form-control mytext" type="text" ref="description" name="Description" autoFocus required />
+                                    <textarea className="form-control mytext" type="text" ref="description" name="Description" autoFocus />
                                 </div>
                                 <div className="col-md-12 button-block text-center">
-                                    {/* <button className="btn btn-danger" onClick={() => { this.setState({ showDialog: !this.state.showDialog }) }} >Click here to cancel invoice</button> */}
-                                     <button className="btn btn-danger" onClick={this.delete.bind(this)} >Click here to cancel invoice</button>   
-                                    {/* <button className="btn btn-danger" onClick={Submit()} >Click here to cancel invoice</button> */}
+                                    {/* <button className="btn btn-danger" onClick={() => { this.setState({ showDialog: !this.state.showDialog }) }} >Click here to cancel invoice</button>  */}
+                                    <button className="btn btn-danger" onClick={this.delete.bind(this)} >Click here to cancel invoice</button>
                                 </div>
                             </div>
                         </form>
                         : <div />
                 }
-                {/* <div>
-                {
+                {/* {
+                     {/* <form onChange={this.validate.bind(this)} >  
                     this.state.showDialog ?
                         <ReactConfirmAlert
                             title="Confirm to submit"
@@ -332,10 +331,8 @@ class ViewOrCancelInvoice extends Component {
                             onConfirm={() => this.delete()}
                             onCancel={() => this.backClick()}
                         />
-                        : <div />
-                }
-                </div> */}
-
+                     : <div />
+                } */}
             </div>
         );
     }

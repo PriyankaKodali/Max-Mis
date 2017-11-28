@@ -36,9 +36,7 @@ window.isLoggedIn = sessionStorage.getItem("access_token") !== null;
 ReactDOM.render((
     <HashRouter>
         <div>
-            
             <ToastContainer autoClose={3000} position="top-center" />
-
             <App>
                 <Route exact path='/' component={LogIn} />
                 <Route exact path='/DashBoard/:id?' render={(nextState) => requireAuth(nextState, <DashBoard location={nextState.location} history={nextState.history} match={nextState.match} />)} />

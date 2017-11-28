@@ -204,7 +204,7 @@ class Client extends Component {
     }
 
     invoiceFormatter(cell, row) {
-     
+
         if (row["Status"] === "Approved") {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="View Invoice" data-original-title="View Invoive">
@@ -213,10 +213,10 @@ class Client extends Component {
             )
         }
 
-        else if (row["Status"] ==="Generated") {
+        else if (row["Status"] === "Generated") {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="Approve Invoice" data-original-title="Approve Invoice">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='Approve Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'orange' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"],  row["Status"], row["AmountPerUnit"])} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' headerText='Approve Invoice' style={{ cursor: 'pointer', fontSize: '17px', color: 'orange' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["Status"], row["AmountPerUnit"])} ></i>
                 </a>
             )
         }
@@ -224,7 +224,7 @@ class Client extends Component {
         else {
             return (
                 <a data-toggle="tooltip" className="tooltipLink" title="Generate Invoice" data-original-title="Generate Invoive">
-                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"],  row["Status"], row["AmountPerUnit"] )} ></i>
+                    <i className='glyphicon glyphicon-list-alt table-row-selected' style={{ cursor: 'pointer', fontSize: '17px' }} onClick={() => this.gotoClientInvoice(row["ClientId"], "", "", row["EmptyJobs"], row["Status"], row["AmountPerUnit"])} ></i>
                 </a>
             )
         }
@@ -257,30 +257,7 @@ class Client extends Component {
             }
 
             else {
-                if (Status!=null) {
-                    var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
-                        "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
-
-                    $.ajax({
-                        url,
-                        type: "get",
-                        success: (data) => {
-                            this.setState({ InvoiceCount: data["InvoiceCount"] })
-                            var invoiceId = "MAX-" + ClientId + moment(fromDate).format("MM") + moment(fromDate).format("YY") + "_" + (this.state.InvoiceCount )
-                            this.props.history.push({
-                                state: {
-                                    ClientId: ClientId,
-                                    fromDate: fromDate,
-                                    toDate: toDate,
-                                    invoiceId: invoiceId
-                                },
-                                pathname: "/ViewOrCancelInvoice"
-                            })
-                        }
-                    })
-                }
-
-                else {
+                if (Status == null) {
                     var url = ApiUrl + "/api/Clients/GetClientInvoiceCount?ClientId=" + ClientId +
                         "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
 
@@ -303,13 +280,62 @@ class Client extends Component {
                         }
                     });
                 }
+
+                else {
+                    if (Status == "Generated") {
+                        var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
+                            "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
+
+                        $.ajax({
+                            url,
+                            type: "get",
+                            success: (data) => {
+                                this.setState({ InvoiceCount: data["InvoiceCount"] })
+                                var invoiceId = "MAX-" + ClientId + moment(fromDate).format("MM") + moment(fromDate).format("YY") + "_" + (this.state.InvoiceCount + 1)
+                                this.props.history.push({
+                                    state: {
+                                        ClientId: ClientId,
+                                        fromDate: fromDate,
+                                        toDate: toDate,
+                                        invoiceId: invoiceId
+                                    },
+                                    pathname: "/ViewOrCancelInvoice"
+                                })
+                            }
+                        })
+                    }
+                    else {
+                        if (Status = "Approved") {
+                            var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
+                                "&fromDate=" + this.state.fromDate.format("MM-DD-YYYY");
+
+                            $.ajax({
+                                url,
+                                type: "get",
+                                success: (data) => {
+                                    this.setState({ InvoiceCount: data["InvoiceCount"] })
+                                    var invoiceId = "MAX-" + ClientId + moment(fromDate).format("MM") + moment(fromDate).format("YY") + "_" + (this.state.InvoiceCount)
+                                    this.props.history.push({
+                                        state: {
+                                            ClientId: ClientId,
+                                            fromDate: fromDate,
+                                            toDate: toDate,
+                                            invoiceId: invoiceId
+                                        },
+                                        pathname: "/ViewOrCancelInvoice"
+                                    })
+                                }
+                            })
+                        }
+                    }
+                }
             }
         }
 
     }
 
     ClientChanged(val) {
-        this.setState({ Client: val })
+        this.setState({ Client: val || '' })
     }
 
     search() {

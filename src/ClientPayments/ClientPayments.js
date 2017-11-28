@@ -179,7 +179,6 @@ class ClientPayments extends Component {
                         selectRow={selectRowProp}
 
                     >
-                        {/* <TableHeaderColumn columnClassName="invoice" dataField='check' dataFormat={this.RowCheck.bind(this)} width='18'> </TableHeaderColumn> */}
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
                         <TableHeaderColumn dataField="InvoiceCreatedDate" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
@@ -187,10 +186,11 @@ class ClientPayments extends Component {
                         <TableHeaderColumn dataField="Balance" width="40" > Balance </TableHeaderColumn>
                     </BootstrapTable>
 
-                    <div>
-                        <div className="col-sm-12" style={{ textAlign: "center" }}>
-                            <p className="col-xs-2" ><b>Total DueAmount : <span /> </b>     {this.state.ClientDue}  </p>
-                            <p className="col-xs-2"  > <b>Balance Amount : <span /></b> {this.state.totalDue}  </p>
+                    <div >
+                        <div className="col-sm-12" style={{ paddingTop: '10px'}}>
+                            <p className="col-xs-2 pull-right overallbal"  > <b>Balance Amount : <span /></b> {this.state.totalDue}  </p>
+                            <p className="col-xs-2 pull-right overallDue" ><b>Total DueAmount : <span /> </b>     {this.state.ClientDue}  </p>
+
                         </div>
                     </div>
                     <div className="col-md-12 button-block paybutton">
@@ -350,6 +350,7 @@ class ClientPayments extends Component {
 
         this.refs.paymentamount.value = '',
         this.refs.description.value = '',
+        this.refs.paymentDate.value='',
         this.state.isButtonDisabled = false
     }
 

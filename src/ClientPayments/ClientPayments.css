@@ -19,6 +19,20 @@
  padding-left:2px;
 }
 
+.overallbal
+{
+    width: 25.666667%;
+}
+
+.overallDue
+{
+    width: 18.766667%;
+}
+.overlldue
+{
+    padding-left: 40px;
+}
+
 .paymentSummary{
  text-align: right;
  padding-left: 220px;
