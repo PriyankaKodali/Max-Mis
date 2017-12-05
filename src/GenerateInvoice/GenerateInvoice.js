@@ -152,7 +152,7 @@ class GenerateInvoice extends Component {
                                                 </td>
                                                 <td className="text-center"> {item.UnitPriceforDisplay}
                                                 </td>
-                                                <td className="text-right"> {item.LineCount}
+                                                <td className="text-center"> {item.LineCount}
                                                 </td>
                                                 <td className="text-right" >  {Math.round(item.Amount)}
                                                 </td>

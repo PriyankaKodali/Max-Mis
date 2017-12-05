@@ -76,7 +76,8 @@ class ViewOrCancelInvoice extends Component {
                             type: "GET",
                             success: (data) => {
                                 this.setState({ InvoiceApproved: data["approved"] }, () => {
-                                    if (this.state.InvoiceApproved != null) {
+                                    if (this.state.InvoiceApproved["InvoiceApprovedBy"] != null) {
+                                        console.log(this.state.InvoiceApproved["InvoiceApprovedBy"]);
 
                                         var url = ApiUrl + "/api/Clients/GetApprovedInvoice?InvoiceId=" + this.state.invoiceId +
                                             "&ClientId=" + this.state.Client.value +
@@ -185,7 +186,7 @@ class ViewOrCancelInvoice extends Component {
                                                 </td>
                                                 <td className="text-center"> {item.UnitPriceforDisplay}
                                                 </td>
-                                                <td className="text-right"> {item.LineCount}
+                                                <td className="text-center"> {item.LineCount}
                                                 </td>
                                                 <td className="text-right" >  {Math.round(item.Amount)}
                                                 </td>
@@ -207,12 +208,13 @@ class ViewOrCancelInvoice extends Component {
                                 </tr>
 
                                 {
-                                    this.state.ClientDue == null || this.state.ClientDue["TotalDueAmount"] == 0 ? <span /> :
+                                    this.state.ClientDue == null || this.state.ClientDue["DueAmount"] == 0 ? <span /> :
                                         <tr>
                                             <td colSpan="3"></td>
                                             <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
                                             <td className="text-right">
-                                                {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["TotalDueAmount"])}
+                                                 {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["DueAmount"])} 
+                                            
                                             </td>
                                         </tr>
 
@@ -237,7 +239,7 @@ class ViewOrCancelInvoice extends Component {
                                             }
                                             else {
                                                 return (
-                                                    <td className="text-right"> {Math.round(this.state.ClientDue["TotalDueAmount"]) + Math.round(ele["Amount"])}</td>
+                                                    <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
                                                 )
                                             }
                                         })
@@ -267,7 +269,7 @@ class ViewOrCancelInvoice extends Component {
                                 sessionStorage.getItem("roles").indexOf("Coordinator") != -1 ?
                                     <p>
 
-                                        {this.state.InvoiceApproved == null ?
+                                        {this.state.InvoiceApproved["InvoiceApprovedBy"] == null ?
 
                                             <p>
                                                 <button className="btn btn-success" onClick={this.approveClick.bind(this)}> <span /> Approve</button>
@@ -286,7 +288,7 @@ class ViewOrCancelInvoice extends Component {
                                     </p>
                                     :
                                     <p>
-                                        {this.state.InvoiceApproved == null ?
+                                        {this.state.InvoiceApproved["InvoiceApprovedBy"] == null ?
 
                                             <p>
                                                 <button className="mleft10 btn btn-danger" onClick={() => { this.setState({ cancelClick: !this.state.cancelClick }) }} > <span /> Cancel Invoice</button>
@@ -396,7 +398,8 @@ class ViewOrCancelInvoice extends Component {
     pdfToHTML() {
         var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
             "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY");
+            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
+            "&invoiceId="+ this.state.invoiceId;
         window.open(url);
         this.props.history.push({
             state: {

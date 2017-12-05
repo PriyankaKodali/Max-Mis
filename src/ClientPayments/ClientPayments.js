@@ -7,15 +7,11 @@ import Select from 'react-select';
 import './ClientPayments.css'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
 import { showErrorsForInput, setUnTouched, ValidateForm } from '../Validation';
 import { MyAjaxForAttachments, MyAjax } from './../MyAjax';
 import { toast } from 'react-toastify';
-// import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
-// import 'react-confirm-alert/src/react-confirm-alert.css';
 import validate from 'validate.js';
 
-// var validate = require('validate.js');
 var ReactBSTable = require('react-bootstrap-table');
 var BootstrapTable = ReactBSTable.BootstrapTable;
 var TableHeaderColumn = ReactBSTable.TableHeaderColumn;
@@ -34,7 +30,6 @@ function onRowSelect(row, isSelected, e) {
 
     if (isSelected) {
         var DueAmount = row.DueAmount;
-
         if (TotalPaid > DueAmount) {
             row.Balance = 0;
             TotalPaid -= DueAmount;
@@ -48,8 +43,8 @@ function onRowSelect(row, isSelected, e) {
     }
     else {
         row.Balance = row.DueAmount
+              document.getElementById("hiddenAmount").value =   document.getElementById("paymentAmount").value ;
     }
-
 }
 
 function onSelectAll(isSelected, rows) {
@@ -138,7 +133,7 @@ class ClientPayments extends Component {
                 </div>
 
                 <form className="payform" onSubmit={this.handlePay.bind(this)} onChange={this.validate.bind(this)}  >
-                    <div className="col-sm-12 form-group">
+                    <div className="col-sm-12">
                         <div className="col-sm-3 form-group">
                             <label>Client</label>
                             <Select className="form-control" name="clientname" ref="client" placeholder="Select Client" value={this.state.Client} options={this.state.Clients} onChange={this.ClientChanged.bind(this)} />
@@ -206,11 +201,13 @@ class ClientPayments extends Component {
 
     ClientChanged(val) {
         this.setState({ Client: val }, () => {
+          
             if (this.state.Client && this.state.Client.value) {
                 $.ajax({
                     url: ApiUrl + "/api/Payment/GetClientsCurrency?ClientId=" + this.state.Client.value,
-                    success: (data) => { this.setState({ ClientDetail: data["client"] }) }
-                });
+                    success: (data) => { this.setState({ ClientDetail: data["clientCurrency"] }) }
+                })
+                 showErrorsForInput(this.refs.client.wrapper, null);
                 this.getClientPayments();
             }
         });
@@ -221,7 +218,6 @@ class ClientPayments extends Component {
     }
 
     handlePay(e) {
-
         e.preventDefault();
         $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
             ele.classList.remove("un-touched");
@@ -229,7 +225,7 @@ class ClientPayments extends Component {
         })
 
         if (!this.validate(e)) {
-            this.setState({ isButtonDisabled: this.state.isButtonDisabled });
+          //  this.setState({ isButtonDisabled: this.state.isButtonDisabled });
             return;
         }
 
@@ -334,20 +330,18 @@ class ClientPayments extends Component {
                     return false;
                 }
             }
-
             else {
                 alert("Select service for the payment");
             }
         });
-
     }
 
     Refresh() {
-
         this.refs.paymentamount.value = '',
         this.refs.description.value = '',
         this.refs.paymentDate.value='',
-        this.state.isButtonDisabled = false
+        this.state.isButtonDisabled = false,
+        this.state.totalDue=0
     }
 
     validate(e) {

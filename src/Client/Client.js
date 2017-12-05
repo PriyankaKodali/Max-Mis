@@ -33,7 +33,7 @@ class Client extends Component {
             Client_Id: {},
             Client: {},
             Clients: [],
-            fromDate: moment().startOf('month').subtract(30, "days"),
+           fromDate: moment().startOf('month'),
             toDate: moment().startOf('month').subtract(1, "days"),
             IsDataAvailable: false,
             searchClick: false,
@@ -62,6 +62,7 @@ class Client extends Component {
                 this.setState
                     ({
                         // Client: { value: this.props.location.state["ClientId"] },
+                    
                         fromDate: moment(this.props.location.state["fromDate"]),
                         toDate: moment(this.props.location.state["toDate"]),
                     }, () => { this.getClientReport(this.state.currentPage, this.state.sizePerPage) }
@@ -71,7 +72,6 @@ class Client extends Component {
                 this.getClientReport(this.state.currentPage, this.state.sizePerPage)
             }
         })
-
     }
 
     getClientReport(page, count) {
@@ -96,7 +96,6 @@ class Client extends Component {
                 })
             })
     }
-
 
     dataFormatter60(cell, row) {
         return row.NumberOfCharactersPerLine === 60 ? <b>{row["LineCount_60"]} </b> : <p>{row["LineCount_60"]}</p>
@@ -140,7 +139,7 @@ class Client extends Component {
 
                         <div className="col-md-3 form-group" key={this.state.fromDate}>
                             <label> Month </label>
-                            <DatePicker className="form-control" name="fromDate" ref="fromDate" selected={moment().startOf('month')} dateFormat="MMM-YYYY" onChange={(val) => this.setState({ fromDate: val })} />
+                            <DatePicker className="form-control" name="fromDate" ref="fromDate"  defaultValue={moment(this.state.fromDate).startOf('month')}  selected={ moment(this.state.fromDate).startOf('month')} dateFormat="MMM-YYYY" onChange={(val) => this.setState({ fromDate: val })} />
                         </div>
 
                         <div className="col-md-3 button-block myclient-button-block text-center">
@@ -192,10 +191,10 @@ class Client extends Component {
                 <div > </div>
                 <div className="col-sm-6 spanstyle">
                     <span className="badge" width='280'>
-                        <span className="badge" > TotalCountDiv55 : {this.state.TotalDiv55}</span>
-                        <span className="badge">|  TotalCountDiv60: {this.state.TotalDiv60} </span>
-                        <span className="badge">|  TotalCountDiv65: {this.state.TotalDiv65} </span>
-                        <span className="badge">|  TotalTime: {this.state.TotalMinutes} </span>
+                        <span className="badge" > Line Count Divided by 55 : {this.state.TotalDiv55}</span>
+                        <span className="badge">|  Line Count Divded by 60 : {this.state.TotalDiv60} </span>
+                        <span className="badge">|  Line Count Divided by 65 : {this.state.TotalDiv65} </span>
+                        <span className="badge">|  Total Time : {this.state.TotalMinutes} </span>
                     </span>
                 </div>
             </div>
