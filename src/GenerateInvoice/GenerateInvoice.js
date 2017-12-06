@@ -58,7 +58,8 @@ class GenerateInvoice extends Component {
                         $.ajax({
                             url,
                             type: "GET",
-                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"], ClientDue: data["clientDueAmount"] })
+                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"],
+                                           ClientDue: data["clientDueAmount"] })
                         });
 
                         var url1 = ApiUrl + "/api/Clients/GetClientInvoiceCount?InvoiceId=" + this.state.invoiceId;
@@ -85,9 +86,9 @@ class GenerateInvoice extends Component {
                                 <td rowSpan="2">
                                     <p className="pull-right" style={{ marginTop: '5px' }}>
                                         <strong id="invoiceDate">Invoice Date : {' '}</strong> <span />
-                                        {moment(this.state.fromDate).format("MM/DD/YYYY")} <br />
+                                        {moment(this.state.fromDate).format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Due Date <span /><span /> : {' '}</strong>
-                                        {moment(this.state.fromDate).add(10, "days").format("MM/DD/YYYY")} <br />
+                                        {moment(this.state.fromDate).add(10, "days").format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Number : {' '}<span /> </strong>
                                         {this.state.invoiceId}<br />
                                     </p>
@@ -112,21 +113,27 @@ class GenerateInvoice extends Component {
                                 <td>
                                     <p>
                                         <b>Bill To :</b><br />
-
+                                        <p>
                                         {this.state.ClientInvoice.map((item, i) => {
-                                            return (<p key={0}> {(item.Address).split(",").map((item) => {
+                                            return (
+                                                 <p key={0}> {item.ShortName}, <br />
+                                                <p key={0}> {(item.Address).split(",").map((item) => {
                                                 return (
-                                                    <span> {item}, <br /></span>
+                                                    <span> {item}, <br /></span>  
                                                 )
-                                            })} </p>
-                                            )
-                                        })
-                                        }
+                                            })}
+                                               <p key={0}>   {item.StateName}, <br />
+                                                      {item.City} {item.Zip} , <br />
+                                                       {item.CountryName}.
+                                                    </p> 
+                                             </p> </p>
+                                            ) }) }
+                                        </p>
                                     </p>
                                 </td>
                             </tr>
-                        </table>
 
+                        </table>
                         <br />
                         <table id="tbl1" className="mytable" style={{ fontSize: '9px' }}>
                             <thead className="mytable">
@@ -188,7 +195,7 @@ class GenerateInvoice extends Component {
 
                                 <tr>
                                     <td colSpan="3"></td>
-                                    <td colSpan="2" className="text-right"><b>Account Balance as of {this.state.invoiceDate}</b></td>
+                                    <td colSpan="2" className="text-right"><b>({moment(this.state.invoiceDate).format("MMM/DD/YYYY")}) </b></td>
                                     {
                                         this.state.ClientInvoice.map((ele, i) => {
                                             if (this.state.ClientDue === null) {

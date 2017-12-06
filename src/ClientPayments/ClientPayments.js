@@ -42,8 +42,20 @@ function onRowSelect(row, isSelected, e) {
         }
     }
     else {
-        row.Balance = row.DueAmount
-              document.getElementById("hiddenAmount").value =   document.getElementById("paymentAmount").value ;
+        if(row.Balance==0)
+            {
+                row.Balance=row.DueAmount
+                document.getElementById("hiddenAmount").value =   document.getElementById("hiddenAmount").value + row.DueAmount;
+            }
+         if(row.DueAmount==row.Balance)
+             {
+                 row.Balance=row.DueAmount;
+                  document.getElementById("hiddenAmount").value =   document.getElementById("hiddenAmount").value;
+             }
+            else{
+                  document.getElementById("hiddenAmount").value=row.DueAmount-row.Balance;
+                   row.Balance=row.DueAmount
+            }
     }
 }
 
@@ -225,8 +237,12 @@ class ClientPayments extends Component {
         })
 
         if (!this.validate(e)) {
-          //  this.setState({ isButtonDisabled: this.state.isButtonDisabled });
+          this.setState({ isButtonDisabled: this.state.isButtonDisabled });
             return;
+        }
+
+        else{
+              this.setState({ isButtonDisabled: !this.state.isButtonDisabled });
         }
 
         var inputs = $(e.currentTarget.getElementsByClassName('form-control')).map((i, el) => {
@@ -341,7 +357,9 @@ class ClientPayments extends Component {
         this.refs.description.value = '',
         this.refs.paymentDate.value='',
         this.state.isButtonDisabled = false,
-        this.state.totalDue=0
+        this.state.totalDue=0;
+        this.getClientPayments();
+
     }
 
     validate(e) {

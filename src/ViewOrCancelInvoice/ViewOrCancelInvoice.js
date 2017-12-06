@@ -119,9 +119,9 @@ class ViewOrCancelInvoice extends Component {
                                 <td rowSpan="2">
                                     <p className="pull-right" style={{ marginTop: '5px' }}>
                                         <strong id="invoiceDate">Invoice Date : {' '}</strong> <span />
-                                        {moment(this.state.fromDate).format("MM/DD/YYYY")} <br />
+                                        {moment(this.state.fromDate).format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Due Date <span /><span /> : {' '}</strong>
-                                        {moment(this.state.fromDate).add(10, "days").format("MM/DD/YYYY")} <br />
+                                        {moment(this.state.fromDate).add(10, "days").format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Number : {' '}<span /> </strong>
                                         {this.state.invoiceId}<br />
                                     </p>
@@ -146,18 +146,24 @@ class ViewOrCancelInvoice extends Component {
                                 <td>
                                     <p>
                                         <b>Bill To :</b><br />
-
-                                        {this.state.ClientInvoice.map((item, i) => {
-                                            return (<p key={0}> {(item.Address).split(",").map((item) => {
+                                        <p>
+                                            {this.state.ClientInvoice.map((item, i) => {
                                                 return (
-                                                    <span> {item}, <br /></span>
+                                                    <p key={0}> {item.ShortName}, <br />
+                                                        <p key={0}> {(item.Address).split(",").map((item) => {
+                                                            return (
+                                                                <span> {item}, <br /></span>
+                                                            )
+                                                        })}
+                                                            <p key={0}>  {item.StateName},  <br />
+                                                                {item.City} {item.Zip} , <br />
+                                                                {item.CountryName}.
+                                                    </p>
+                                                        </p> </p>
                                                 )
-                                            })} </p>
-                                            )
-                                        })
-                                        }
+                                            })}
+                                        </p>
                                     </p>
-
                                 </td>
                             </tr>
                         </table>
@@ -213,8 +219,8 @@ class ViewOrCancelInvoice extends Component {
                                             <td colSpan="3"></td>
                                             <td className="text-right" colSpan="2"><b>Unpaid Balances</b></td>
                                             <td className="text-right">
-                                                 {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["DueAmount"])} 
-                                            
+                                                {this.state.ClientDue === null ? 0 : Math.round(this.state.ClientDue["DueAmount"])}
+
                                             </td>
                                         </tr>
 
@@ -224,7 +230,7 @@ class ViewOrCancelInvoice extends Component {
                                     <td colSpan="3"></td>
 
 
-                                    <td colSpan="2" className="text-right"><b>Account Balance as of ( {this.state.invoiceDate} ) </b></td>
+                                    <td colSpan="2" className="text-right"><b>Account Balance as of ( {moment(this.state.invoiceDate).format("MMM/DD/YYYY")}  ) </b></td>
                                     {
                                         this.state.ClientInvoice.map((ele, i) => {
                                             {/* return (
@@ -398,8 +404,8 @@ class ViewOrCancelInvoice extends Component {
     pdfToHTML() {
         var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
             "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
-            "&invoiceId="+ this.state.invoiceId;
+            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
+            "&invoiceId=" + this.state.invoiceId;
         window.open(url);
         this.props.history.push({
             state: {
@@ -449,7 +455,7 @@ class ViewOrCancelInvoice extends Component {
                     return true;
                 },
                 (error) => {
-                    toast("Cancellation cannot be done!", {
+                    toast("Cancellation cannot be done as payment was done to this invoice!", {
                         type: toast.TYPE.ERROR,
                         autoClose: false
                     });
