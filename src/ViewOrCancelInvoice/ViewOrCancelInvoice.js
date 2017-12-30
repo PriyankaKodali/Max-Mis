@@ -119,9 +119,9 @@ class ViewOrCancelInvoice extends Component {
                                 <td rowSpan="2">
                                     <p className="pull-right" style={{ marginTop: '5px' }}>
                                         <strong id="invoiceDate">Invoice Date : {' '}</strong> <span />
-                                        {moment(this.state.fromDate).format("MMM/DD/YYYY")} <br />
+                                        {moment().format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Due Date <span /><span /> : {' '}</strong>
-                                        {moment(this.state.fromDate).add(10, "days").format("MMM/DD/YYYY")} <br />
+                                        {moment().add(10, "days").format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Number : {' '}<span /> </strong>
                                         {this.state.invoiceId}<br />
                                     </p>
@@ -142,30 +142,81 @@ class ViewOrCancelInvoice extends Component {
                         </table>
                         <div className="col-xs-12"><hr /></div>
                         <table>
-                            <tr>
-                                <td>
-                                    <p>
-                                        <b>Bill To :</b><br />
-                                        <p>
-                                            {this.state.ClientInvoice.map((item, i) => {
-                                                return (
-                                                    <p key={0}> {item.ShortName}, <br />
-                                                        <p key={0}> {(item.Address).split(",").map((item) => {
-                                                            return (
-                                                                <span> {item}, <br /></span>
-                                                            )
-                                                        })}
-                                                            <p key={0}>  {item.StateName},  <br />
-                                                                {item.City} {item.Zip} , <br />
-                                                                {item.CountryName}.
-                                                    </p>
-                                                        </p> </p>
+                            
+                            {this.state.ClientInvoice.map((item, i) => {
+
+                                if (item.Addresses.length == 1) {
+                                    return (
+                                        item.Addresses.map((item1, j) => {
+                                            if (item1.IsInvoiceAddress == true) {
+                                                return (<tr >
+                                                    <td >
+                                                        <p >
+                                                            <b>Bill To :</b><br />
+                                                            <p>
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1}, <br />
+                                                                    <p key={0}>  {item1.State}, <br />
+                                                                        {item1.City} {item1.Zip} , <br />
+                                                                        {item1.Country}.
+                                                                     </p>
+                                                                </p>
+                                                            </p>
+                                                            <input type="hidden" refs="clntAdd" value={this.refs.clientAddress} />
+                                                        </p>
+                                                    </td>
+                                                </tr>)
+
+                                            }
+                                        })
+                                    )
+                                }
+                                else {
+                                    return (
+                                        item.Addresses.map((item1, j) => {
+                                            if (item1.IsInvoiceAddress == false) {
+                                                return (<tr>
+                                                    <td>
+                                                        <p>
+                                                            <b> To :</b><br />
+                                                            <p>
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1}, <br />
+                                                                    <p key={0}>  {item1.State}, <br />
+                                                                        {item1.City} {item1.Zip} , <br />
+                                                                        {item1.Country}.
+                                                            </p>
+                                                                </p>
+
+                                                            </p>
+                                                        </p>
+                                                    </td>
+                                                </tr>)
+
+                                            }
+                                            else {
+                                                return (<tr>
+                                                    <td >
+                                                        <p>
+                                                            <b>Bill To :</b><br />
+                                                            <p >
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1},
+                                                                    <p key={0}> {item1.City} {item1.State}, <br />
+                                                                        {item1.Zip} ,  {item1.Country}.<br />
+                                                                    </p>
+                                                                </p>
+                                                            </p>
+                                                            <input type="hidden" refs="clntAdd" value={this.refs.clientAddress} />
+                                                        </p>
+                                                    </td>
+                                                </tr>
                                                 )
-                                            })}
-                                        </p>
-                                    </p>
-                                </td>
-                            </tr>
+                                            }
+                                        }))
+                                }
+                            })
+                            }
                         </table>
 
                         <br />
@@ -349,11 +400,10 @@ class ViewOrCancelInvoice extends Component {
         var data = new FormData();
         data.append("InvoiceId", this.state.invoiceId);
         data.append("ApprovedBy", sessionStorage.getItem("userName"));
-        data.append("approvedDate", moment(this.state.fromDate).format("MM-DD-YYYY"));
+        data.append("invoiceMonth", moment(this.state.fromDate).format("MM"));
         data.append("ClientId", this.props.location.state["ClientId"]);
 
-
-        var url = ApiUrl + "api/AddData/updateInvoice?InvoiceId=" + this.state.invoiceId
+        var url = ApiUrl + "/api/Invoices/UpdateInvoice?InvoiceId=" + this.state.invoiceId;
 
         try {
             MyAjaxForAttachments(
@@ -403,7 +453,7 @@ class ViewOrCancelInvoice extends Component {
 
     pdfToHTML() {
         var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+            "&fromdate=" + moment(this.state.fromDate).startOf('month').format("MM-DD-YYYY") +
             "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
             "&invoiceId=" + this.state.invoiceId;
         window.open(url);
@@ -441,7 +491,7 @@ class ViewOrCancelInvoice extends Component {
         data.append("Description", this.refs.description.value);
         data.append("InvoiceId", this.state.invoiceId);
 
-        var url = ApiUrl + "/api/DeleteInvoice/DeleteInvoice?InvoiceId=" + this.state.invoiceId
+        var url = ApiUrl + "/api/Delete/DeleteInvoice?InvoiceId=" + this.state.invoiceId
 
         try {
             MyAjaxForAttachments(
@@ -455,7 +505,7 @@ class ViewOrCancelInvoice extends Component {
                     return true;
                 },
                 (error) => {
-                    toast("Cancellation cannot be done as payment was done to this invoice!", {
+                    toast("Cancellation of this invoice is not possible as payment is done!", {
                         type: toast.TYPE.ERROR,
                         autoClose: false
                     });

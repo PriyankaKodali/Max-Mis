@@ -61,8 +61,6 @@ class Client extends Component {
             if (this.props.location.state) {
                 this.setState
                     ({
-                        // Client: { value: this.props.location.state["ClientId"] },
-                    
                         fromDate: moment(this.props.location.state["fromDate"]),
                         toDate: moment(this.props.location.state["toDate"]),
                     }, () => { this.getClientReport(this.state.currentPage, this.state.sizePerPage) }
@@ -79,7 +77,7 @@ class Client extends Component {
         var url = ApiUrl + "/api/Clients/GetClientReport?clientId=" + this.state.Client.value +
             "&page=" + page +
             "&count=" + count +
-            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
+            "&fromdate=" + moment(this.state.fromDate).startOf('month').format("MM-DD-YYYY") +
             "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
             "&SortCol=" + this.state.sortName +
             "&SortDir=" + this.state.sortOrder;
@@ -278,7 +276,6 @@ class Client extends Component {
                         }
                     });
                 }
-
                 else {
                     if (Status == "Generated") {
                         var url = ApiUrl + "/api/Clients/GetClientInvoice?ClientId=" + ClientId +
@@ -343,7 +340,7 @@ class Client extends Component {
     clear() {
 
         this.state.Client = "";
-        this.state.fromDate = moment().startOf('month').subtract(30, "days");
+        this.state.fromDate = moment().startOf('month');
         this.state.toDate = moment();
         this.getClientReport(this.state.currentPage, this.state.sizePerPage);
     }

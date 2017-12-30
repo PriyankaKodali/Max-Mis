@@ -52,14 +52,16 @@ class GenerateInvoice extends Component {
                         invoiceId: this.props.location.state["invoiceId"]
                     }, () => {
                         var url = ApiUrl + "/api/Invoices/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-                            "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY")+
-                            "&invoiceId="+this.state.invoiceId;
+                            "&fromdate=" + moment(this.state.fromDate).startOf('month').format("MM-DD-YYYY") +
+                            "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
+                            "&invoiceId=" + this.state.invoiceId;
                         $.ajax({
                             url,
                             type: "GET",
-                            success: (data) => this.setState({ ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"],
-                                           ClientDue: data["clientDueAmount"] })
+                            success: (data) => this.setState({
+                                ClientInvoice: data["invoices"], ClientAddress: data["invoices"]["Address"],
+                                ClientDue: data["clientDueAmount"]
+                            })
                         });
 
                         var url1 = ApiUrl + "/api/Clients/GetClientInvoiceCount?InvoiceId=" + this.state.invoiceId;
@@ -86,9 +88,9 @@ class GenerateInvoice extends Component {
                                 <td rowSpan="2">
                                     <p className="pull-right" style={{ marginTop: '5px' }}>
                                         <strong id="invoiceDate">Invoice Date : {' '}</strong> <span />
-                                        {moment(this.state.fromDate).format("MMM/DD/YYYY")} <br />
+                                        {moment().format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Due Date <span /><span /> : {' '}</strong>
-                                        {moment(this.state.fromDate).add(10, "days").format("MMM/DD/YYYY")} <br />
+                                        {moment().add(10, "days").format("MMM/DD/YYYY")} <br />
                                         <strong >Invoice Number : {' '}<span /> </strong>
                                         {this.state.invoiceId}<br />
                                     </p>
@@ -109,29 +111,81 @@ class GenerateInvoice extends Component {
                         </table>
                         <div className="col-xs-12"><hr /></div>
                         <table>
-                            <tr>
-                                <td>
-                                    <p>
-                                        <b>Bill To :</b><br />
-                                        <p>
-                                        {this.state.ClientInvoice.map((item, i) => {
-                                            return (
-                                                 <p key={0}> {item.ShortName}, <br />
-                                                <p key={0}> {(item.Address).split(",").map((item) => {
-                                                return (
-                                                    <span> {item}, <br /></span>  
+
+                            {this.state.ClientInvoice.map((item, i) => {
+
+                                if (item.Addresses.length == 1) {
+                                    return (
+                                        item.Addresses.map((item1, j) => {
+                                            if (item1.IsInvoiceAddress == false) {
+                                                return (<tr >
+                                                    <td >
+                                                        <p >
+                                                            <b> Bill To :</b><br />
+                                                            <p>
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1}, <br />
+                                                                    <p key={0}>  {item1.State}, <br />
+                                                                        {item1.City} {item1.Zip} , <br />
+                                                                        {item1.Country}.
+                                                                     </p>
+                                                                </p>
+                                                            </p>
+                                                            <input type="hidden" refs="clntAdd" value={this.refs.clientAddress} />
+                                                        </p>
+                                                    </td>
+                                                </tr>)
+
+                                            }
+                                        })
+                                    )
+                                }
+                                else {
+                                    return (
+                                        item.Addresses.map((item1, j) => {
+                                            if (item1.IsInvoiceAddress == false) {
+                                                return (<tr>
+                                                    <td>
+                                                        <p>
+                                                            <b>  To :</b><br />
+                                                            <p>
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1}, <br />
+                                                                    <p key={0}>  {item1.State}, <br />
+                                                                        {item1.City} {item1.Zip} , <br />
+                                                                        {item1.Country}.
+                                                                    </p>
+                                                                </p>
+
+                                                            </p>
+                                                        </p>
+                                                    </td>
+                                                </tr>)
+
+                                            }
+                                            else {
+                                                return (<tr>
+                                                    <td >
+                                                        <p>
+                                                            <b>Bill To :</b><br />
+                                                            <p >
+                                                                <p key={0}> {item.ShortName}, <br />
+                                                                    {item1.Line1},
+                                                                    <p key={0}> {item1.City} {item1.State}, <br />
+                                                                        {item1.Zip} ,  {item1.Country}.<br />
+                                                                    </p>
+                                                                </p>
+                                                            </p>
+                                                            <input type="hidden" refs="clntAdd" value={this.refs.clientAddress} />
+                                                        </p>
+                                                    </td>
+                                                </tr>
                                                 )
-                                            })}
-                                               <p key={0}>   {item.StateName}, <br />
-                                                      {item.City} {item.Zip} , <br />
-                                                       {item.CountryName}.
-                                                    </p> 
-                                             </p> </p>
-                                            ) }) }
-                                        </p>
-                                    </p>
-                                </td>
-                            </tr>
+                                            }
+                                        }))
+                                }
+                            })
+                            }
 
                         </table>
                         <br />
@@ -195,7 +249,7 @@ class GenerateInvoice extends Component {
 
                                 <tr>
                                     <td colSpan="3"></td>
-                                    <td colSpan="2" className="text-right"><b>({moment(this.state.invoiceDate).format("MMM/DD/YYYY")}) </b></td>
+                                    <td colSpan="2" className="text-right"><b>Account balance as of({moment(this.state.invoiceDate).format("MMM/DD/YYYY")}) </b></td>
                                     {
                                         this.state.ClientInvoice.map((ele, i) => {
                                             if (this.state.ClientDue === null) {
@@ -207,8 +261,8 @@ class GenerateInvoice extends Component {
                                             }
                                             else {
                                                 return (
-                                                   // < td className="text-right">{Math.round(ele["Amount"])}  </td>
-                                                   <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
+                                                    // < td className="text-right">{Math.round(ele["Amount"])}  </td>
+                                                    <td className="text-right"> {Math.round(this.state.ClientDue["DueAmount"]) + Math.round(ele["Amount"])}</td>
                                                 )
                                             }
                                         })
@@ -230,50 +284,28 @@ class GenerateInvoice extends Component {
                 </div>
 
                 <div className="col-md-12" style={{ textAlign: "center", paddingTop: "15px", marginBottom: "30px" }}>
-                    {/* <button className="btn btn-success" onClick={this.handleSubmit.bind(this)}> Save </button> <span />
-                    <button className="btn btn-success " onClick={this.pdfToHTML.bind(this)}> Generate Pdf</button> */}
                     <button className="btn btn-success" onClick={this.handleSubmit.bind(this)}> Save </button>
-                      <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
-                 </div>
+                    <button className="mleft10 btn btn-primary" onClick={this.backClick.bind(this)}> Back </button>
+                </div>
 
             </div>
         )
     }
 
-    backClick(e)
-    {
-          this.props.history.push({
+    backClick(e) {
+        this.props.history.push({
             state: {
                 fromDate: this.state.fromDate,
-                toDate: this.state.toDate
+                toDate: this.state.toDate,
             },
             pathname: "/Client"
         })
     }
 
-
- // pdfToHTML() {
-
-    //     // var url = ApiUrl + "/Home/GetInvoiceDetails?ClientId=" + this.state.Client.value +
-    //     //     "&fromdate=" + moment(this.state.fromDate).format("MM-DD-YYYY") +
-    //     //     "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY");
-    //     // window.open(url);
-
-    //     this.props.history.push({
-    //         state: {
-    //             // ClientId: this.state.Client.value,
-    //             fromDate: this.state.fromDate,
-    //             toDate: this.state.toDate
-    //         },
-    //         pathname: "/Client"
-    //     })
- // }
-
     handleSubmit() {
         var amount = 0;
         var unitPrice = 0;
         var totalcharges = 0;
-
         {
             this.state.ClientInvoice.map((ele, i) => {
                 amount += ele["Amount"]
@@ -285,15 +317,13 @@ class GenerateInvoice extends Component {
         var services = this.state.ClientInvoice
         var data = new FormData();
 
-        // data.append("Invoices", JSON.stringify(this.state.ClientInvoice.ServiceId));
-
         data.append("Client_Id", this.props.location.state["ClientId"]);
         data.append("CompanyAddress", this.state.companyAddress);
-        data.append("ClientAddress", this.state.ClientInvoice[0]["Address"]);
         data.append("InvoiceDate", moment(this.state.fromDate).format("MM/DD/YYYY"));
         data.append("InvoiceId", this.state.invoiceId);
         data.append("TotalLines", this.state.ClientInvoice[0]["LineCount"]);
         data.append("CreatedBy", sessionStorage.getItem("userName"));
+        data.append("InvoiceMonth", moment(this.state.fromDate).format("MM"))
 
         if (this.state.ClientDue == null) {
             data.append("UnpaidBalance", this.state.ClientDue);
@@ -304,18 +334,44 @@ class GenerateInvoice extends Component {
         data.append("ClientService", this.state.ClientInvoice[0]["ServiceId"]);
         data.append("UnitPrice", this.state.ClientInvoice[0]["UnitPrice"]);
         data.append("CurrentAmount", this.state.ClientInvoice[0]["Amount"]);
+
+        {
+            this.state.ClientInvoice.map((item, i) => {
+                if (item.Addresses.length == 1) {
+                    item.Addresses.map((item1, j) => {
+                        var clientAddress = item.ShortName + ',' + item1.Line1 + ',' + item1.City + ',' + item1.State + ',' + item1.Country + ',' + item1.Zip
+                        data.append("ClientAddress", clientAddress);
+                    })
+                }
+                else {
+                   
+                    item.Addresses.map((item1, j) => {
+                        if (item1.IsInvoiceAddress == true) {
+                            var clientAddress = item.ShortName + ',' + item1.Line1 + ',' + item1.City + ',' + item1.State + ',' + item1.Country + ',' + item1.Zip
+                            data.append("ClientAddress", clientAddress);
+                        }
+                        else{
+                             var clientToAddress = item.ShortName + ',' + item1.Line1 + ',' + item1.City + ',' + item1.State + ',' + item1.Country + ',' + item1.Zip
+                            data.append("ClientToAddress", clientToAddress);
+                        }
+                    })
+                }
+            }
+            )
+        }
+
         var serviceIds = [];
         for (var i = 0; i < this.state.ClientInvoice.length; i++) {
             serviceIds.push(this.state.ClientInvoice[i].ServiceId);
         }
         data.append("InvoiceServices", JSON.stringify(serviceIds));
 
-        let url = ApiUrl + "/api/AddData/AddInvoice";
+        let url = ApiUrl + "/api/Invoices/AddInvoice";
         try {
             MyAjaxForAttachments(
                 url,
                 (data) => {
-                    toast("client invoice saved successfully!", {
+                    toast("Invoice saved successfully!", {
                         type: toast.TYPE.SUCCESS
                     });
                     $("button[name='submit']").show();

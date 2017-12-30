@@ -46,7 +46,7 @@ class App extends Component {
                                 <li className="dropdown">
                                     <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Reports</a>
                                     <ul className="dropdown-menu">
-                                        <li> <Link to="/Client">Client Report </Link> </li>
+                                        <li> <Link to="/Client">Generate Invoice</Link> </li>
                                         <li> <Link to="../Employee">Employee Report </Link> </li>
                                         <li> <Link to="../ClientPayments"> Client Payment </Link> </li>
                                     </ul>

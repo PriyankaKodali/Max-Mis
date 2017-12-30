@@ -17,71 +17,6 @@ var BootstrapTable = ReactBSTable.BootstrapTable;
 var TableHeaderColumn = ReactBSTable.TableHeaderColumn;
 var moment = require('moment');
 
-const selectRowProp = {
-    mode: 'checkbox',
-    clickToSelect: true,
-    onSelect: onRowSelect,
-    onSelectAll: onSelectAll
-};
-
-function onRowSelect(row, isSelected, e) {
-
-    var TotalPaid = document.getElementById("hiddenAmount").value;
-
-    if (isSelected) {
-        var DueAmount = row.DueAmount;
-        if (TotalPaid > DueAmount) {
-            row.Balance = 0;
-            TotalPaid -= DueAmount;
-            document.getElementById("hiddenAmount").value = TotalPaid;
-        }
-        else {
-            row.Balance = (row.DueAmount - TotalPaid).toFixed(3);
-            TotalPaid = 0;
-            document.getElementById("hiddenAmount").value = TotalPaid;
-        }
-    }
-    else {
-        if(row.Balance==0)
-            {
-                row.Balance=row.DueAmount
-                document.getElementById("hiddenAmount").value =   document.getElementById("hiddenAmount").value + row.DueAmount;
-            }
-         if(row.DueAmount==row.Balance)
-             {
-                 row.Balance=row.DueAmount;
-                  document.getElementById("hiddenAmount").value =   document.getElementById("hiddenAmount").value;
-             }
-            else{
-                  document.getElementById("hiddenAmount").value=row.DueAmount-row.Balance;
-                   row.Balance=row.DueAmount
-            }
-    }
-}
-
-function onSelectAll(isSelected, rows) {
-
-    var PaidAmount = document.getElementById("paymentAmount").value;
-
-    if (isSelected) {
-        for (let i = 0; i < rows.length; i++) {
-            if (PaidAmount > rows[i].DueAmount) {
-                rows[i].Balance = 0;
-                PaidAmount -= rows[i].DueAmount;
-            }
-            else {
-                rows[i].Balance = (rows[i].DueAmount - PaidAmount).toFixed(3);
-                PaidAmount = 0;
-            }
-        }
-    }
-    else {
-        for (let i = 0; i < rows.length; i++) {
-            rows[i].Balance = rows[i].DueAmount;
-        }
-    }
-}
-
 class ClientPayments extends Component {
 
     constructor(props) {
@@ -100,12 +35,89 @@ class ClientPayments extends Component {
             amount: 0,
             ClientDue: [],
             hiddenAmount: {}, errors: {},
-            isButtonDisabled: false
-
+            isButtonDisabled: false,
+            dueAfterPay: "0"
         }
     }
 
-    componentWillMount() {
+    selectRowProp = {
+        mode: 'checkbox',
+        clickToSelect: true,
+        onSelect:this.onRowSelect,
+        onSelectAll: this.onSelectAll
+    };
+
+    onRowSelect(row, isSelected, e) {
+
+        var TotalPaid = document.getElementById("hiddenAmount").value;
+
+        if (isSelected) {
+
+            var DueAmount = row.DueAmount;
+            if (TotalPaid > DueAmount) {
+                row.Balance = 0;
+                TotalPaid -= DueAmount;
+                document.getElementById("hiddenAmount").value = TotalPaid;
+            }
+            else {
+                
+                row.Balance = (row.DueAmount - TotalPaid).toFixed(3);
+                TotalPaid = 0;
+                document.getElementById("hiddenAmount").value = TotalPaid;
+            }
+        }
+        else {
+            if (row.Balance == 0) {
+                row.Balance = row.DueAmount
+                document.getElementById("hiddenAmount").value = document.getElementById("hiddenAmount").value + row.DueAmount;
+            }
+
+            if (row.DueAmount == row.Balance) {
+                row.Balance = row.DueAmount;
+                document.getElementById("hiddenAmount").value = document.getElementById("hiddenAmount").value;
+            }
+            else {
+                document.getElementById("hiddenAmount").value = row.DueAmount - row.Balance;
+                row.Balance = row.DueAmount
+            }
+        }
+
+    }
+
+    onSelectAll(isSelected, rows) {
+        var PaidAmount = document.getElementById("paymentAmount").value;
+        // var dueAfterPay = 0;
+        // document.getElementById("dueAfterPay").value=dueAfterPay;
+
+        if (isSelected) {
+            for (let i = 0; i < rows.length; i++) {
+                if (PaidAmount > rows[i].DueAmount) {
+                    rows[i].Balance = 0;
+                    PaidAmount -= rows[i].DueAmount;
+                    //   dueAfterPay = (parseFloat(dueAfterPay)  + parseFloat(rows[i].Balance));
+                    //   document.getElementById("dueAfterPay").value =dueAfterPay;
+                }
+                else {
+                    rows[i].Balance = (rows[i].DueAmount - PaidAmount).toFixed(3);
+                    PaidAmount = 0;
+                    // dueAfterPay = (parseFloat(dueAfterPay) +  parseFloat((rows[i].Balance)));
+                    // document.getElementById("dueAfterPay").value=dueAfterPay;
+                }
+            }
+        }
+
+        else {
+             var dueAfterPay = 0;
+              document.getElementById("dueAfterPay").value=dueAfterPay;
+             for (let i = 0; i < rows.length; i++) {
+                rows[i].Balance = rows[i].DueAmount;
+             //   dueAfterPay += (parseFloat(rows[i].DueAmount )); 
+            }
+            //    document.getElementById("dueAfterPay").value=dueAfterPay
+                }
+     }
+
+     componentWillMount() {
         $.ajax({
             url: ApiUrl + "/api/Clients/GetAllClients",
             type: "get",
@@ -123,7 +135,7 @@ class ClientPayments extends Component {
     }
 
     getClientPayments() {
-        var url = ApiUrl + "/api/Payment/GetPaymentDetails?client_id=" + this.state.Client.value;
+        var url = ApiUrl + "/api/Payments/GetPaymentDetails?client_id=" + this.state.Client.value;
         $.ajax({
             url,
             type: "get",
@@ -183,7 +195,7 @@ class ClientPayments extends Component {
                     <div className="clearfix"> </div>
 
                     <BootstrapTable className="clienttable" data={this.state.ClientPayment} ref="table" striped hover remote={true}
-                        selectRow={selectRowProp} >
+                        selectRow={this.selectRowProp} >
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
                         <TableHeaderColumn dataField="InvoiceCreatedDate" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
@@ -192,14 +204,19 @@ class ClientPayments extends Component {
                     </BootstrapTable>
 
                     <div >
-                        <div className="col-sm-12" style={{ paddingTop: '10px'}}>
-                            <p className="col-xs-2 pull-right overallbal"  > <b>Balance Amount : <span /></b> {this.state.totalDue}  </p>
-                            <p className="col-xs-2 pull-right overallDue" ><b>Total DueAmount : <span /> </b>     {this.state.ClientDue}  </p>
+                        <div className="col-sm-12" style={{ paddingTop: '10px' }}>
+                            {/* <p className="col-xs-2 pull-right overallbal"  > <b>Balance Amount : <span /></b> {this.state.totalDue}  </p> */}
 
+                             <p className="col-xs-2 pull-right overallbal"  > <b>Balance Amount : <span /></b>
+                                 {this.state.dueAfterPay}
+                                 </p> 
+  
+                            <p className="col-xs-2 pull-right overallDue" ><b>Total DueAmount : <span /> </b>
+                                {this.state.ClientDue} </p>  
                         </div>
                     </div>
                     <div className="col-md-12 button-block paybutton">
-                        <button type="submit" name="submit" className="btn btn-primary mybutton" disabled={this.state.isButtonDisabled} > Submit </button>
+                        <button type="submit" name="submit" className="btn btn-primary mybutton" > Submit </button>
                     </div>
                 </form>
             </div>
@@ -209,17 +226,28 @@ class ClientPayments extends Component {
 
     handlePaymentAmount(val) {
         this.setState({ hiddenAmount: this.refs.paymentamount.value })
+
+        if(this.state.ClientDue>this.refs.paymentamount.value)
+            {
+                   this.setState({dueAfterPay: Math.round((this.state.ClientDue - this.refs.paymentamount.value) * 100 / 100)})
+            }
+            else{
+             //  this.setState({dueAfterPay: Math.round((this.refs.paymentamount.value - this.state.ClientDue )* 100 / 100)})
+              this.setState({dueAfterPay: 0 })
+            }
     }
 
     ClientChanged(val) {
-        this.setState({ Client: val }, () => {
-          
+          this.state.dueAfterPay='',
+            this.state.ClientDue=''
+         this.setState({ Client: val }, () => {
+
             if (this.state.Client && this.state.Client.value) {
                 $.ajax({
-                    url: ApiUrl + "/api/Payment/GetClientsCurrency?ClientId=" + this.state.Client.value,
+                    url: ApiUrl + "/api/Payments/GetClientsCurrency?ClientId=" + this.state.Client.value,
                     success: (data) => { this.setState({ ClientDetail: data["clientCurrency"] }) }
                 })
-                 showErrorsForInput(this.refs.client.wrapper, null);
+                showErrorsForInput(this.refs.client.wrapper, null);
                 this.getClientPayments();
             }
         });
@@ -230,20 +258,22 @@ class ClientPayments extends Component {
     }
 
     handlePay(e) {
+
         e.preventDefault();
+
         $(e.currentTarget.getElementsByClassName('form-control')).map((i, ele) => {
             ele.classList.remove("un-touched");
             return null;
         })
 
         if (!this.validate(e)) {
-          this.setState({ isButtonDisabled: this.state.isButtonDisabled });
+            //  this.setState({ isButtonDisabled: this.state.isButtonDisabled });
             return;
         }
 
-        else{
-              this.setState({ isButtonDisabled: !this.state.isButtonDisabled });
-        }
+        // else{
+        //       this.setState({ isButtonDisabled: !this.state.isButtonDisabled });
+        // }
 
         var inputs = $(e.currentTarget.getElementsByClassName('form-control')).map((i, el) => {
             if (el.closest(".form-group").classList.contains("hidden")) {
@@ -261,32 +291,11 @@ class ClientPayments extends Component {
         var actualDueamount = 0;
         var overallDueAmount = 0
 
-        this.state.ClientPayment.map((item, i) => {
-
-            if (this.refs.table.state.selectedRowKeys.length > 0) {
-
-                if (this.refs.table.state.selectedRowKeys.indexOf(item["InvoiceId"]) != -1) {
-                    var bal = 0;
-                    if (TotalAmount > 0) {
-                        if (item["DueAmount"] > TotalAmount) {
-                            bal = Math.round((item["DueAmount"] - TotalAmount) * 1000) / 1000;
-                            TotalAmount = bal;
-                        }
-                        else {
-                            TotalAmount -= Math.round((TotalAmount - item["DueAmount"]) * 1000 / 1000);
-                        }
-                        tempClientPayment[i]["Balance"] = bal;
-                        TotalAmount -= item["DueAmount"];
-                        totalDue += tempClientPayment[i]["Balance"];
-                    }
-                    else {
-                        tempClientPayment[i]["Balance"] = item["DueAmount"];
-                        totalDue += tempClientPayment[i]["Balance"];
-                    }
-
-                    actualDueamount += item["DueAmount"];
-                }
-
+          if (this.refs.table.state.selectedRowKeys.length <= 0) {
+                alert("Select service for the payment");
+            }
+            else{
+                
                 this.state.totalDue = totalDue;
                 this.setState({ ClientPayment: tempClientPayment });
 
@@ -309,10 +318,9 @@ class ClientPayments extends Component {
                     data.append("ChequePdf", file[0]);
                 }
 
-                let url = ApiUrl + "/api/AddPayment/PayAmount"
+                let url = ApiUrl + "/api/Payments/PayAmount"
 
                 try {
-
                     MyAjaxForAttachments(
                         url,
                         (data) => {
@@ -346,19 +354,16 @@ class ClientPayments extends Component {
                     return false;
                 }
             }
-            else {
-                alert("Select service for the payment");
-            }
-        });
     }
 
     Refresh() {
         this.refs.paymentamount.value = '',
-        this.refs.description.value = '',
-        this.refs.paymentDate.value='',
-        this.state.isButtonDisabled = false,
-        this.state.totalDue=0;
-        this.getClientPayments();
+            this.refs.description.value = '',
+            this.refs.paymentDate.value = '',
+            this.state.dueAfterPay='',
+            this.state.ClientDue=''
+
+            this.getClientPayments();
 
     }
 
@@ -382,4 +387,3 @@ class ClientPayments extends Component {
 }
 
 export default ClientPayments;
-
