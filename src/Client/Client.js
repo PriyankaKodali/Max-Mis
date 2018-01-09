@@ -29,7 +29,7 @@ class Client extends Component {
         window.isLoggedIn = isLoggedIn;
 
         this.state = {
-            currentPage: 1, sizePerPage: 10, dataTotalSize: 0,
+            currentPage: 1, sizePerPage: 25, dataTotalSize: 0,
             Client_Id: {},
             Client: {},
             Clients: [],
@@ -75,19 +75,19 @@ class Client extends Component {
     getClientReport(page, count) {
         this.setState({ IsDataAvailable: false })
         var url = ApiUrl + "/api/Clients/GetClientReport?clientId=" + this.state.Client.value +
-            "&page=" + page +
-            "&count=" + count +
             "&fromdate=" + moment(this.state.fromDate).startOf('month').format("MM-DD-YYYY") +
             "&todate=" + moment(this.state.fromDate).endOf('month').format("MM-DD-YYYY") +
+            "&page=" + page +
+            "&count=" + count +
             "&SortCol=" + this.state.sortName +
             "&SortDir=" + this.state.sortOrder;
-        $.ajax
-            ({
+        $.ajax({
                 url,
                 type: "get",
                 success: (data) => this.setState({
                     ClientReport: data["clients"], dataTotalSize: data["totalCount"], currentPage: page,
-                    sizePerPage: count, IsDataAvailable: true, TotalDiv55: data["TotalCharCount_55"],
+                    sizePerPage: count, IsDataAvailable: true,
+                    TotalDiv55: data["TotalCharCount_55"],
                     TotalDiv60: data["TotalCharCount_60"],
                     TotalDiv65: data["TotalCharCount_65"],
                     TotalMinutes: data["TotalMinutes"]

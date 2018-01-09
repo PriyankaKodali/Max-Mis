@@ -154,7 +154,7 @@ class ViewOrCancelInvoice extends Component {
                                                         <p >
                                                             <b>Bill To :</b><br />
                                                             <p>
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}> 
                                                                     {item1.Line1}, <br />
                                                                     <p key={0}>  {item1.State}, <br />
                                                                         {item1.City} {item1.Zip} , <br />
@@ -180,7 +180,7 @@ class ViewOrCancelInvoice extends Component {
                                                         <p>
                                                             <b> To :</b><br />
                                                             <p>
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}> 
                                                                     {item1.Line1}, <br />
                                                                     <p key={0}>  {item1.State}, <br />
                                                                         {item1.City} {item1.Zip} , <br />
@@ -200,7 +200,7 @@ class ViewOrCancelInvoice extends Component {
                                                         <p>
                                                             <b>Bill To :</b><br />
                                                             <p >
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}>
                                                                     {item1.Line1},
                                                                     <p key={0}> {item1.City} {item1.State}, <br />
                                                                         {item1.Zip} ,  {item1.Country}.<br />
@@ -402,6 +402,7 @@ class ViewOrCancelInvoice extends Component {
         data.append("ApprovedBy", sessionStorage.getItem("userName"));
         data.append("invoiceMonth", moment(this.state.fromDate).format("MM"));
         data.append("ClientId", this.props.location.state["ClientId"]);
+        data.append("invoiceYear", moment(this.state.fromDate).format("YYYY"));
 
         var url = ApiUrl + "/api/Invoices/UpdateInvoice?InvoiceId=" + this.state.invoiceId;
 
@@ -462,7 +463,7 @@ class ViewOrCancelInvoice extends Component {
                 fromDate: this.state.fromDate,
                 toDate: this.state.toDate
             },
-            pathname: "/Client"
+             pathname: "/Client"
         })
     }
 

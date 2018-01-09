@@ -8,7 +8,6 @@ import { MyAjax, MyAjaxForAttachments } from '.././MyAjax';
 import { ApiUrl } from '.././Config';
 import './GenerateInvoice.css';
 import { toast } from 'react-toastify';
-import jsPDF from 'jspdf';
 import rasterizehtml from 'rasterizehtml';
 
 
@@ -37,7 +36,8 @@ class GenerateInvoice extends Component {
             companyAddress: "MAX TRANS SYSTEMS LLC 1032 EAST WACO  KERMIT, TX 79745",
             InvoiceTime: moment().format("hh:mm:ss"),
             ClientAddress: "",
-            ClientDue: {}
+            ClientDue: {},
+             amount : 0,
         }
     }
 
@@ -117,13 +117,13 @@ class GenerateInvoice extends Component {
                                 if (item.Addresses.length == 1) {
                                     return (
                                         item.Addresses.map((item1, j) => {
-                                            if (item1.IsInvoiceAddress == false) {
+                                            if (item1.IsInvoiceAddress == true) {
                                                 return (<tr >
                                                     <td >
                                                         <p >
                                                             <b> Bill To :</b><br />
                                                             <p>
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}>  
                                                                     {item1.Line1}, <br />
                                                                     <p key={0}>  {item1.State}, <br />
                                                                         {item1.City} {item1.Zip} , <br />
@@ -135,7 +135,6 @@ class GenerateInvoice extends Component {
                                                         </p>
                                                     </td>
                                                 </tr>)
-
                                             }
                                         })
                                     )
@@ -149,7 +148,7 @@ class GenerateInvoice extends Component {
                                                         <p>
                                                             <b>  To :</b><br />
                                                             <p>
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}>
                                                                     {item1.Line1}, <br />
                                                                     <p key={0}>  {item1.State}, <br />
                                                                         {item1.City} {item1.Zip} , <br />
@@ -169,7 +168,7 @@ class GenerateInvoice extends Component {
                                                         <p>
                                                             <b>Bill To :</b><br />
                                                             <p >
-                                                                <p key={0}> {item.ShortName}, <br />
+                                                                <p key={0}>
                                                                     {item1.Line1},
                                                                     <p key={0}> {item1.City} {item1.State}, <br />
                                                                         {item1.Zip} ,  {item1.Country}.<br />
@@ -226,10 +225,10 @@ class GenerateInvoice extends Component {
                                     <td colSpan="3"></td>
                                     <td colSpan="2" className="text-right"><b>Total Charges</b></td>
                                     {
+                                  
                                         this.state.ClientInvoice.map((ele, i) => {
-                                            var amount = 0;
                                             return (
-                                                < td className="text-right">  {amount += Math.round(ele["Amount"])} </td>
+                                                < td className="text-right">  {this.state.amount += Math.round(ele["Amount"])} </td>
                                             )
                                         })
                                     }
@@ -321,19 +320,20 @@ class GenerateInvoice extends Component {
         data.append("CompanyAddress", this.state.companyAddress);
         data.append("InvoiceDate", moment(this.state.fromDate).format("MM/DD/YYYY"));
         data.append("InvoiceId", this.state.invoiceId);
-        data.append("TotalLines", this.state.ClientInvoice[0]["LineCount"]);
         data.append("CreatedBy", sessionStorage.getItem("userName"));
         data.append("InvoiceMonth", moment(this.state.fromDate).format("MM"))
-
         if (this.state.ClientDue == null) {
             data.append("UnpaidBalance", this.state.ClientDue);
         }
         else {
             data.append("UnpaidBalance", this.state.ClientDue["DueAmount"]);
         }
+
+        data.append("TotalLines", this.state.ClientInvoice[0]["LineCount"]);
         data.append("ClientService", this.state.ClientInvoice[0]["ServiceId"]);
         data.append("UnitPrice", this.state.ClientInvoice[0]["UnitPrice"]);
         data.append("CurrentAmount", this.state.ClientInvoice[0]["Amount"]);
+        data.append("invoiceYear", moment(this.state.fromDate).format("YYYY"));
 
         {
             this.state.ClientInvoice.map((item, i) => {

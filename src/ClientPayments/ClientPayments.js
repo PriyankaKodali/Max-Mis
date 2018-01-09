@@ -198,7 +198,7 @@ class ClientPayments extends Component {
                         selectRow={this.selectRowProp} >
                         <TableHeaderColumn dataField="InvoiceId" isKey={true} width="40" > Invoice Number </TableHeaderColumn>
                         <TableHeaderColumn dataField="ServiceName" width="40" > Service</TableHeaderColumn>
-                        <TableHeaderColumn dataField="InvoiceCreatedDate" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
+                        <TableHeaderColumn dataField="InvoiceMonth" width="40" dataFormat={this.MonthFormatter.bind(this)} > Month </TableHeaderColumn>
                         <TableHeaderColumn dataField="DueAmount" width="40" > Due Amount</TableHeaderColumn>
                         <TableHeaderColumn dataField="Balance" width="40" > Balance </TableHeaderColumn>
                     </BootstrapTable>
@@ -254,7 +254,7 @@ class ClientPayments extends Component {
     }
 
     MonthFormatter(cell, row) {
-        return <p > {moment(row["InvoiceCreatedDate"]).format("MMMM YYYY")} </p>
+        return <p > {moment(row["InvoiceMonth"]).format("MMMM") + " " + row["invoiceYear"]} </p>
     }
 
     handlePay(e) {
